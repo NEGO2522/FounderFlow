@@ -1,0 +1,299 @@
+/* Settings orchestration lists, navigation bars, selector options, custom toggles, and add form grids */
+.settings-container {
+  display: flex;
+  flex: 1;
+  width: 100%;
+  height: calc(100vh - 56px);
+  background-color: var(--bg-deep);
+  overflow: hidden;
+}
+
+.settings-nav {
+  width: 220px;
+  min-width: 220px;
+  border-right: 1px solid var(--border-card);
+  background-color: var(--bg-deep);
+  display: flex;
+  flex-direction: column;
+  padding: 24px 16px;
+  gap: 8px;
+}
+
+.settings-nav-btn {
+  background: none;
+  border: none;
+  color: #a4aa8e;
+  font-family: var(--font-geist-mono);
+  font-size: 13px;
+  font-weight: 700;
+  text-align: left;
+  padding: 10px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.15s ease;
+}
+
+.settings-nav-btn:hover {
+  background-color: var(--surface-card);
+  color: var(--text-warm);
+}
+
+.settings-nav-btn.active {
+  background-color: var(--surface-card);
+  color: var(--accent-lime);
+}
+
+.settings-content {
+  flex: 1;
+  padding: 40px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.settings-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-card);
+  padding-bottom: 16px;
+  margin-bottom: 8px;
+}
+
+.settings-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text-warm);
+  margin: 0;
+}
+
+.settings-subtitle {
+  font-size: 12px;
+  color: #a4aa8e;
+  margin-top: 4px;
+}
+
+.settings-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Agent Config Card */
+.settings-card {
+  background-color: var(--surface-card);
+  border: 1px solid var(--border-card);
+  border-radius: 8px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  transition: border-color 0.2s;
+}
+
+.settings-card:hover {
+  border-color: #3d432b;
+}
+
+.settings-card-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+  min-width: 0;
+}
+
+.settings-card-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-shrink: 0;
+}
+
+.settings-agent-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.settings-agent-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-warm);
+}
+
+.settings-agent-role {
+  font-size: 11px;
+  color: #a4aa8e;
+}
+
+/* Selector and Inputs */
+.settings-select {
+  background-color: #1A1D14;
+  border: 1px solid var(--border-card);
+  border-radius: 6px;
+  color: var(--text-warm);
+  font-family: var(--font-geist-mono);
+  font-size: 11.5px;
+  padding: 8px 12px;
+  outline: none;
+  cursor: pointer;
+  min-width: 160px;
+  transition: border-color 0.15s;
+}
+
+.settings-select:focus {
+  border-color: var(--accent-lime);
+}
+
+.settings-select option {
+  background-color: #1A1D14;
+  color: var(--text-warm);
+}
+
+/* Custom Flat Toggle Switch */
+.flat-toggle {
+  width: 38px;
+  height: 20px;
+  background-color: #1A1D14;
+  border: 1px solid var(--border-card);
+  border-radius: 10px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.flat-toggle.enabled {
+  background-color: var(--accent-lime);
+  border-color: var(--accent-lime);
+}
+
+.toggle-dot {
+  width: 14px;
+  height: 14px;
+  background-color: #a4aa8e;
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.flat-toggle.enabled .toggle-dot {
+  transform: translateX(18px);
+  background-color: #1A1D14;
+}
+
+.flat-toggle.disabled {
+  opacity: 0.6;
+}
+
+/* Flat military styled buttons */
+.outline-btn {
+  background: none;
+  border: 1px solid var(--border-card);
+  border-radius: 6px;
+  color: var(--text-warm);
+  font-family: var(--font-geist-mono);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.outline-btn:hover {
+  border-color: var(--accent-lime);
+  color: var(--accent-lime);
+}
+
+.lime-btn {
+  background-color: var(--accent-lime);
+  border: 1px solid var(--accent-lime);
+  border-radius: 6px;
+  color: #1A1D14;
+  font-family: var(--font-geist-mono);
+  font-size: 12px;
+  font-weight: 800;
+  padding: 10px 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  transition: background-color 0.15s;
+}
+
+.lime-btn:hover {
+  background-color: #b7dd3d;
+}
+
+/* Config forms */
+.settings-form-container {
+  background-color: var(--surface-card);
+  border: 1px solid var(--border-card);
+  border-radius: 8px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.settings-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.settings-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.settings-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #a4aa8e;
+}
+
+.settings-input {
+  background-color: #1A1D14;
+  border: 1px solid var(--border-card);
+  border-radius: 6px;
+  color: var(--text-warm);
+  font-family: var(--font-geist-mono);
+  font-size: 13px;
+  padding: 10px 14px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.settings-input:focus {
+  border-color: var(--accent-lime);
+}
+
+/* Dummy placeholder content columns */
+.settings-dummy-field {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.settings-card.billing-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  font-size: 13px;
+}

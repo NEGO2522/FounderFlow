@@ -1,48 +1,17 @@
-/* Layout Containers */
-.dashboard-container {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  width: 100vw;
-  background-color: var(--bg-deep);
-  overflow: hidden;
-  position: relative;
-}
+/* Console main dashboard widgets, workspace chat streams, sidebars, right roadmaps, and inline artifact copy blocks */
 
-/* Matte paper grain texture overlay */
-.noise-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  content: "";
-  opacity: 0.012;
-  pointer-events: none;
-  z-index: 9999;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-}
-
+/* Top bar details */
 .top-bar {
-  height: 56px;
-  background-color: var(--bg-deep);
-  border-bottom: 1px solid var(--border-card);
   display: flex;
   align-items: center;
   justify-content: space-between;
+  height: 56px;
   padding: 0 24px;
-  z-index: 10;
+  background-color: var(--bg-deep);
+  border-bottom: 1px solid var(--border-card);
 }
 
-.dashboard-body {
-  display: flex;
-  flex: 1;
-  width: 100%;
-  height: calc(100vh - 56px);
-  overflow: hidden;
-}
-
-/* Sidebar Layout */
+/* Sidebar navigation */
 .sidebar {
   width: 240px;
   min-width: 240px;
@@ -51,32 +20,31 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  box-sizing: border-box;
 }
 
 .sidebar-content {
   flex: 1;
   overflow-y: auto;
-  padding: 16px;
+  padding: 16px 12px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
 }
 
-/* Agent Card Styles with exactly 8px rounded corners */
+/* Agent cards list styling */
 .agent-card-wrapper {
-  position: relative;
+  border: 1px solid var(--border-card);
   border-radius: 8px;
-  transition: all 0.2s ease;
+  padding: 1px;
 }
 
 .agent-card {
-  background-color: var(--surface-card);
-  border: 1px solid var(--border-card);
-  border-radius: 8px;
-  padding: 12px;
   display: flex;
   align-items: center;
+  padding: 12px;
+  background-color: var(--surface-card);
+  border-radius: 7px;
+  border: 1px solid transparent;
   gap: 12px;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -93,7 +61,7 @@
   border-color: #8FA832;
 }
 
-/* Matte Border Pulse for Working Agents - No glowing shadows or neon colors */
+/* Matte pulse border animation */
 @keyframes matte-pulse {
   0% { border-color: var(--border-card); }
   50% { border-color: var(--accent-lime); }
@@ -104,48 +72,53 @@
   animation: matte-pulse 2s infinite ease-in-out;
 }
 
-/* Agent Elements */
 .agent-avatar {
   width: 32px;
   height: 32px;
-  border-radius: 6px; /* slightly rounded for internal card items */
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #9AA066;
+  background-color: #1E2118;
+  border: 1px solid #2E3320;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
-  font-size: 13px;
-  color: #1A1D14;
-  text-transform: uppercase;
+  flex-shrink: 0;
+  font-family: var(--font-geist-mono);
 }
 
 .agent-info {
-  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
   min-width: 0;
 }
 
 .agent-name {
-  font-weight: 700;
   font-size: 13px;
+  font-weight: 800;
   color: var(--text-warm);
 }
 
 .agent-role-badge {
   font-size: 10px;
   color: #a4aa8e;
-  border-radius: 2px;
-  width: fit-content;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
-/* Main Workspace */
+.settings-toggle-dimmed {
+  border-style: dashed !important;
+}
+
+/* Console main chat workspace */
 .main-workspace {
   flex: 1;
-  background-color: var(--bg-deep);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  background-color: var(--bg-deep);
   height: 100%;
 }
 
@@ -156,90 +129,82 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: var(--bg-deep);
 }
 
 .workspace-title-row {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
 }
 
 .active-task-indicator {
   font-size: 11px;
-  color: #a4aa8e;
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  color: var(--accent-lime);
 }
 
-/* Chat Console - Minimalist spacing and room */
 .chat-container {
   flex: 1;
   overflow-y: auto;
   padding: 32px 40px;
   display: flex;
   flex-direction: column;
-  gap: 28px; /* Breathing room between dialogues */
+  gap: 32px;
 }
 
 .chat-message {
   display: flex;
-  gap: 16px;
-  max-width: 80%;
-  animation: fadeIn 0.2s ease-out;
+  width: 100%;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(2px); }
-  to { opacity: 1; transform: translateY(0); }
+.chat-message.agent {
+  justify-content: flex-start;
 }
 
 .chat-message.user {
-  align-self: flex-end;
-  flex-direction: row-reverse;
+  justify-content: flex-end;
 }
 
 .chat-bubble {
+  max-width: 600px;
   background-color: var(--surface-card);
   border: 1px solid var(--border-card);
   border-radius: 8px;
   padding: 16px 20px;
-  font-size: 13px;
-  line-height: 1.6;
-  color: var(--text-warm);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .chat-message.user .chat-bubble {
-  background-color: rgba(200, 240, 74, 0.04);
-  border-color: rgba(200, 240, 74, 0.2);
+  background-color: #272c1c;
+  border-color: #373d26;
 }
 
 .chat-sender-label {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--accent-lime);
-  margin-bottom: 6px;
+  font-size: 9px;
+  font-weight: 800;
+  color: #a4aa8e;
+  letter-spacing: 0.05em;
 }
 
 .chat-message.user .chat-sender-label {
-  color: #a4aa8e;
+  color: var(--accent-lime);
 }
 
 .chat-timestamp {
-  font-size: 10px;
+  font-size: 9px;
   color: #6a7155;
-  margin-top: 8px;
   text-align: right;
+  margin-top: 4px;
 }
 
-/* Chat Input Bar */
+/* Chat Input form bar */
 .chat-input-bar {
-  padding: 24px 40px;
-  background-color: var(--bg-deep);
+  border-top: 1px solid var(--border-card);
+  padding: 16px 24px;
   display: flex;
-  gap: 16px;
-  align-items: center;
+  gap: 12px;
+  background-color: var(--bg-deep);
 }
 
 .chat-input-container {
@@ -280,23 +245,23 @@
   width: 44px;
   height: 44px;
   border-radius: 8px;
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  transition: background-color 0.15s ease;
+  transition: background-color 0.15s;
 }
 
 .send-button:hover {
   background-color: #b7dd3d;
 }
 
-/* Inline Code Artifact Viewer inside Chat Bubble */
+/* Copyable Inline Code Artifact cards */
 .inline-artifact-card {
-  margin-top: 14px;
+  margin-top: 12px;
   border: 1px solid var(--border-card);
   border-radius: 8px;
-  background-color: #15170e;
+  background-color: #1A1D14;
   overflow: hidden;
 }
 
@@ -344,18 +309,17 @@
 .inline-artifact-body code {
   font-size: 11px;
   line-height: 1.5;
-  color: #cdd4b4;
+  color: #d2d8bc;
 }
 
-/* Right Panel (Minimalist Project Details) */
+/* Right project context panel details */
 .right-panel {
   width: 280px;
   min-width: 280px;
-  background-color: var(--bg-deep);
   border-left: 1px solid var(--border-card);
+  background-color: var(--bg-deep);
   display: flex;
   flex-direction: column;
-  height: 100%;
 }
 
 .right-panel-header {
@@ -365,23 +329,26 @@
 
 .right-panel-title {
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 800;
   color: var(--text-warm);
-  margin: 0 0 12px 0;
+  margin: 0;
+  letter-spacing: -0.01em;
 }
 
 .tech-tags-list {
   display: flex;
-  gap: 6px;
   flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
 }
 
 .tech-tag {
-  font-size: 10px;
-  color: var(--text-warm);
+  font-size: 9px;
+  font-weight: 700;
+  color: #a4aa8e;
   border: 1px solid var(--border-card);
-  padding: 2px 8px;
   border-radius: 4px;
+  padding: 3px 6px;
 }
 
 .right-panel-body {
@@ -394,71 +361,32 @@
 }
 
 .widget-card {
-  background-color: var(--surface-card);
-  border: 1px solid var(--border-card);
-  border-radius: 8px;
-  padding: 16px;
-}
-
-.widget-title {
-  font-size: 11px;
-  font-weight: 700;
-  color: #a4aa8e;
-  margin-bottom: 12px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-/* Sprint Roadmap & Tasks */
-.roadmap-container {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-}
-
-.roadmap-item {
-  display: flex;
-  align-items: flex-start;
   gap: 12px;
-  padding: 8px 0;
-  font-size: 12px;
-  color: #cdd4b4;
-  cursor: pointer;
 }
 
-.roadmap-checkbox {
-  width: 16px;
-  height: 16px;
-  border-radius: 4px;
-  border: 1.5px solid var(--border-card);
+.progress-header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  margin-top: 2px;
-  flex-shrink: 0;
-  transition: all 0.15s ease;
+  font-size: 11px;
+  font-weight: 700;
 }
 
-.roadmap-item.completed .roadmap-checkbox {
-  background-color: var(--accent-lime);
-  border-color: var(--accent-lime);
-  color: #1A1D14;
+.progress-title {
+  color: #a4aa8e;
 }
 
-.roadmap-item.completed span {
-  color: #6a7155;
-  text-decoration: line-through;
+.progress-percent {
+  color: var(--accent-lime);
 }
 
-/* Flat Minimal Progress Bar - No glows */
 .progress-bar-bg {
-  width: 100%;
-  height: 6px;
+  height: 4px;
   background-color: var(--border-card);
-  border-radius: 3px;
+  border-radius: 2px;
   overflow: hidden;
-  margin-bottom: 16px;
 }
 
 .progress-bar-fill {
@@ -467,26 +395,53 @@
   transition: width 0.3s ease;
 }
 
-.progress-header {
+/* Tasks list container */
+.roadmap-container {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
 }
 
-.progress-title {
+.roadmap-item {
+  display: flex;
+  gap: 10px;
+  cursor: pointer;
   font-size: 11px;
-  font-weight: 700;
   color: #a4aa8e;
+  line-height: 1.4;
+  user-select: none;
 }
 
-.progress-percent {
-  font-size: 11px;
-  font-weight: 700;
+.roadmap-item.completed {
+  color: #6a7155;
+  text-decoration: line-through;
+}
+
+.roadmap-checkbox {
+  width: 14px;
+  height: 14px;
+  border: 1px solid var(--border-card);
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1px;
+  flex-shrink: 0;
+  transition: border-color 0.15s;
+}
+
+.roadmap-item:hover .roadmap-checkbox {
+  border-color: var(--accent-lime);
+}
+
+.roadmap-item.completed .roadmap-checkbox {
+  background-color: #2e3320;
+  border-color: #3d432b;
   color: var(--accent-lime);
 }
 
-/* Project switch item */
+/* Switch project action links */
 .minimal-project-btn {
   background: none;
   border: 1px solid var(--border-card);

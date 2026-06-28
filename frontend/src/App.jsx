@@ -1,125 +1,32 @@
 import React, { useState, useEffect, useRef } from 'react';
-import './App.css';
-
-// Curated military/matte earth tones for avatars
-const initialAgents = [
-  {
-    id: 'atlas',
-    name: 'Atlas',
-    role: 'Lead Architect',
-    avatar: 'AT',
-    avatarBg: '#8F9E6C', // Muted olive
-    status: 'Working', // starts in Working status to demonstrate border pulse
-    activeTask: 'Refactoring API Gateway in Rust',
-    messages: [
-      { sender: 'agent', text: "Systems verified. audited postgres database schemas and verified OTP connection pooling parameters.", timestamp: '19:02' },
-      { sender: 'user', text: "Can you design the Postgres database schema for the user profiles, dishes, and order queues?", timestamp: '19:10' },
-      { sender: 'agent', text: "Designed. Relational schema constructed with support for fast index lookups and status enumerations.", timestamp: '19:11',
-        artifact: {
-          title: 'schema.sql',
-          content: `-- PostgreSQL Database Schema for FoodieFlow
--- Designed by Atlas (Lead Architect)
-
-CREATE TYPE order_status AS ENUM (
-  'pending', 'preparing', 'in_transit', 'delivered', 'cancelled'
-);
-
-CREATE TABLE users (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  full_name VARCHAR(100) NOT NULL,
-  email VARCHAR(255) UNIQUE NOT NULL,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE dishes (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  name VARCHAR(150) NOT NULL,
-  price DECIMAL(10, 2) NOT NULL,
-  is_available BOOLEAN DEFAULT TRUE
-);
-
-CREATE TABLE orders (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES users(id),
-  status order_status DEFAULT 'pending',
-  total_amount DECIMAL(10, 2) NOT NULL,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);`
-        }
-      }
-    ]
-  },
-  {
-    id: 'nova',
-    name: 'Nova',
-    role: 'Growth Hacker',
-    avatar: 'NV',
-    avatarBg: '#BDBE82', // Khaki
-    status: 'Idle',
-    activeTask: 'Awaiting instruction',
-    messages: [
-      { sender: 'agent', text: "Growth acquisition flows mapped. Ready to draft landing page headlines or funnel frameworks.", timestamp: '18:50' }
-    ]
-  },
-  {
-    id: 'solis',
-    name: 'Solis',
-    role: 'Product Lead',
-    avatar: 'SL',
-    avatarBg: '#889782', // Sage
-    status: 'Active',
-    activeTask: 'Reviewing User Feedback Metrics',
-    messages: [
-      { sender: 'agent', text: "Sprint tasks analyzed. Recommend focusing on delivery speed parameters to differentiate.", timestamp: '18:34' }
-    ]
-  },
-  {
-    id: 'vera',
-    name: 'Vera',
-    role: 'SecOps & QA',
-    avatar: 'VR',
-    avatarBg: '#B5996E', // Camel
-    status: 'Working',
-    activeTask: 'Fuzzing auth endpoints for vulnerabilities',
-    messages: [
-      { sender: 'agent', text: "Security scanner validated. Auth endpoints checked against OTP token bypass vulnerabilities.", timestamp: '19:15',
-        artifact: {
-          title: 'audit.json',
-          content: `{
-  "audit_version": "1.0.4",
-  "status": "SECURE",
-  "endpoints_scanned": 12,
-  "vulnerabilities": []
-}`
-        }
-      }
-    ]
-  },
-  {
-    id: 'aura',
-    name: 'Aura',
-    role: 'Creative Dir.',
-    avatar: 'AR',
-    avatarBg: '#6B7D5F', // Forest green
-    status: 'Active',
-    activeTask: 'Polishing UI styling system',
-    messages: [
-      { sender: 'agent', text: "Color system loaded. Matte dark olive palette compiled with crisp electric lime highlights.", timestamp: '18:42' }
-    ]
-  }
-];
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { initialAgents } from './data/agents';
+import LoginPage from './pages/LoginPage';
+import SignUpPage from './pages/SignUpPage';
+import DashboardPage from './pages/DashboardPage';
+import SettingsPage from './pages/SettingsPage';
+import './styles/global.css';
 
 export default function App() {
   const [agents, setAgents] = useState(initialAgents);
-  const [activeAgentId, setActiveAgentId] = useState('atlas');
+  const [activeAgentId, setActiveAgentId] = useState('chatgpt');
   const [userInput, setUserInput] = useState('');
   const [activeProject, setActiveProject] = useState('Food Delivery App');
   const [copiedId, setCopiedId] = useState(null);
+
+  // Settings tab selections
+  const [activeSettingsTab, setActiveSettingsTab] = useState('agents');
   
-  // Minimal completion ratio
+  // Add Agent Form State
+  const [isAddingAgent, setIsAddingAgent] = useState(false);
+  const [newAgentName, setNewAgentName] = useState('');
+  const [newAgentRole, setNewAgentRole] = useState('');
+  const [newAgentModel, setNewAgentModel] = useState('Claude 3.5 Sonnet');
+
+  // completion metrics
   const [completionPercentage, setCompletionPercentage] = useState(60);
 
-  // Project sprint items
+  // sprint roadmap checklist
   const [roadmap, setRoadmap] = useState([
     { id: 1, text: 'Design relational database layout & geospatial indexing', completed: true },
     { id: 2, text: 'Establish JWT and OTP Authentication schemes', completed: true },
@@ -140,21 +47,22 @@ export default function App() {
     }
   };
 
-  const activeAgent = agents.find(a => a.id === activeAgentId);
+  const visibleAgents = agents.filter(agent => agent.enabled);
+  const activeAgent = agents.find(a => a.id === activeAgentId) || visibleAgents[0] || agents[0];
+  
   const chatEndRef = useRef(null);
 
-  // Auto-scroll chat
+  // Scroll chat
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [activeAgent.messages]);
+  }, [activeAgent?.messages]);
 
-  // Sync completion ratio on initial mount
+  // Sync completion ratio
   useEffect(() => {
     const completedCount = roadmap.filter(t => t.completed).length;
     setCompletionPercentage(Math.round((completedCount / roadmap.length) * 100));
   }, []);
 
-  // Toggle checklist tasks
   const handleToggleTask = (id) => {
     const updatedRoadmap = roadmap.map(task => {
       if (task.id === id) {
@@ -168,22 +76,68 @@ export default function App() {
     setCompletionPercentage(Math.round((completedCount / updatedRoadmap.length) * 100));
   };
 
-  // Copy code artifact to clipboard
   const handleCopyText = (content, title) => {
     navigator.clipboard.writeText(content);
     setCopiedId(title);
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  // Handle message post
+  const handleToggleAgent = (id) => {
+    setAgents(prev => prev.map(agent => {
+      if (agent.id === id) {
+        return { ...agent, enabled: !agent.enabled };
+      }
+      return agent;
+    }));
+  };
+
+  const handleModelChange = (id, model) => {
+    setAgents(prev => prev.map(agent => {
+      if (agent.id === id) {
+        return { ...agent, model };
+      }
+      return agent;
+    }));
+  };
+
+  const handleAddNewAgent = (e) => {
+    e.preventDefault();
+    if (!newAgentName.trim() || !newAgentRole.trim()) return;
+
+    const newId = newAgentName.toLowerCase().replace(/\s+/g, '-');
+    const initials = newAgentName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+    
+    const colors = ['#8F9E6C', '#BDBE82', '#889782', '#B5996E', '#6B7D5F'];
+    const randomBg = colors[Math.floor(Math.random() * colors.length)];
+
+    const newAgent = {
+      id: newId,
+      name: newAgentName,
+      role: newAgentRole,
+      avatar: initials,
+      avatarBg: randomBg,
+      status: 'Active',
+      enabled: true,
+      model: newAgentModel,
+      activeTask: 'Awaiting instruction',
+      messages: [
+        { sender: 'agent', text: `Agent ${newAgentName} provisioned successfully. Running on ${newAgentModel}. How can I assist?`, timestamp: new Date().toTimeString().slice(0, 5) }
+      ]
+    };
+
+    setAgents(prev => [...prev, newAgent]);
+    setNewAgentName('');
+    setNewAgentRole('');
+    setIsAddingAgent(false);
+  };
+
   const handleSendMessage = (e) => {
     e.preventDefault();
-    if (!userInput.trim()) return;
+    if (!userInput.trim() || !activeAgent) return;
 
     const userMessageText = userInput;
     setUserInput('');
 
-    // Append user message
     const userMessage = {
       sender: 'user',
       text: userMessageText,
@@ -192,7 +146,7 @@ export default function App() {
 
     setAgents(prevAgents => 
       prevAgents.map(agent => {
-        if (agent.id === activeAgentId) {
+        if (agent.id === activeAgent.id) {
           return {
             ...agent,
             messages: [...agent.messages, userMessage],
@@ -204,12 +158,11 @@ export default function App() {
       })
     );
 
-    // Simulate thinking delay (1.5 seconds)
     setTimeout(() => {
       const response = getSimulatedResponse(activeAgent.name, userMessageText);
       setAgents(prevAgents => 
         prevAgents.map(agent => {
-          if (agent.id === activeAgentId) {
+          if (agent.id === activeAgent.id) {
             return {
               ...agent,
               status: 'Active',
@@ -231,11 +184,10 @@ export default function App() {
     }, 1500);
   };
 
-  // Mock responses with matching artifacts
   const getSimulatedResponse = (agentName, query) => {
     const q = query.toLowerCase();
     
-    if (agentName === 'Atlas') {
+    if (agentName === 'DeepSeek' || agentName === 'Claude') {
       if (q.includes('schema') || q.includes('database') || q.includes('sql')) {
         return {
           text: "I've structured a migration update. Exposing relational tables and active coordinates tracker index mapping.",
@@ -260,7 +212,7 @@ async fn status() -> impl Responder {
 }`
         }
       };
-    } else if (agentName === 'Nova') {
+    } else if (agentName === 'ChatGPT') {
       return {
         text: "Launch slogans and copy structures updated for the campaign.",
         artifact: {
@@ -270,7 +222,7 @@ async fn status() -> impl Responder {
 - Objective: Convert top-of-funnel downtown traffic.`
         }
       };
-    } else if (agentName === 'Vera') {
+    } else if (agentName === 'Gemini' || agentName === 'Perplexity') {
       return {
         text: "Security headers audited. Recommendations exported below.",
         artifact: {
@@ -289,228 +241,50 @@ async fn status() -> impl Responder {
   };
 
   return (
-    <div className="dashboard-container">
-      {/* Matte paper grain texture overlay */}
-      <div className="noise-overlay"></div>
-
-      {/* Top Bar */}
-      <header className="top-bar">
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <span style={{ fontSize: '13px', fontWeight: '800', letterSpacing: '0.12em', color: 'var(--text-warm)' }}>
-            FOUNDER<span style={{ color: 'var(--accent-lime)' }}>//</span>FLOW
-          </span>
-        </div>
-        
-        {/* Project Name Center */}
-        <div style={{ fontSize: '12px', fontWeight: '700', letterSpacing: '0.05em', color: 'var(--text-warm)' }}>
-          {activeProject.toUpperCase()}
-        </div>
-
-        {/* One status dot right */}
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <span 
-            style={{ 
-              width: '8px', 
-              height: '8px', 
-              borderRadius: '50%', 
-              backgroundColor: 'var(--accent-lime)',
-              display: 'inline-block' 
-            }}
-          ></span>
-        </div>
-      </header>
-
-      {/* Main Container */}
-      <div className="dashboard-body">
-        
-        {/* Left Sidebar (AI Agents list) */}
-        <aside className="sidebar">
-          <div className="sidebar-content">
-            {agents.map((agent) => (
-              <div 
-                key={agent.id} 
-                className={`agent-card-wrapper ${agent.status === 'Working' ? 'working' : ''}`}
-              >
-                <div 
-                  className={`agent-card ${activeAgentId === agent.id ? 'active' : ''}`}
-                  onClick={() => setActiveAgentId(agent.id)}
-                >
-                  <div className="agent-avatar" style={{ backgroundColor: agent.avatarBg }}>
-                    {agent.avatar}
-                  </div>
-                  
-                  <div className="agent-info">
-                    <span className="agent-name">{agent.name}</span>
-                    <span className="agent-role-badge">{agent.role}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </aside>
-
-        {/* Center Workspace (Chat dialogue) */}
-        <main className="main-workspace">
-          {/* Active Workspace Header */}
-          <div className="workspace-header">
-            <div className="workspace-title-row">
-              <span style={{ fontWeight: '800', fontSize: '13px', color: 'var(--text-warm)' }}>
-                {activeAgent.name.toUpperCase()}
-              </span>
-              <span style={{ color: '#a4aa8e', fontSize: '11px' }}>
-                ({activeAgent.role})
-              </span>
-            </div>
-            
-            <div className="active-task-indicator">
-              <span>TASK: {activeAgent.activeTask}</span>
-            </div>
-          </div>
-
-          {/* Chat Container */}
-          <div className="chat-container">
-            {activeAgent.messages.map((msg, index) => (
-              <div 
-                key={index} 
-                className={`chat-message ${msg.sender === 'user' ? 'user' : 'agent'}`}
-              >
-                <div className="chat-bubble">
-                  <div className="chat-sender-label">
-                    {msg.sender === 'user' ? 'YOU' : activeAgent.name.toUpperCase()}
-                  </div>
-                  <div style={{ whiteSpace: 'pre-wrap' }}>
-                    {msg.text}
-                  </div>
-                  
-                  {/* Inline Artifact code card rendered inside message bubble */}
-                  {msg.artifact && (
-                    <div className="inline-artifact-card">
-                      <div className="inline-artifact-header">
-                        <span className="inline-artifact-title">
-                          {msg.artifact.title}
-                        </span>
-                        <button 
-                          className="inline-artifact-copy"
-                          onClick={() => handleCopyText(msg.artifact.content, msg.artifact.title)}
-                        >
-                          {copiedId === msg.artifact.title ? 'COPIED' : 'COPY'}
-                        </button>
-                      </div>
-                      <div className="inline-artifact-body">
-                        <pre>
-                          <code>{msg.artifact.content}</code>
-                        </pre>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="chat-timestamp">
-                    {msg.timestamp}
-                  </div>
-                </div>
-              </div>
-            ))}
-            <div ref={chatEndRef} />
-          </div>
-
-          {/* Minimal Send Input bar */}
-          <form onSubmit={handleSendMessage} className="chat-input-bar">
-            <div className="chat-input-container">
-              <input 
-                type="text" 
-                className="chat-text-input" 
-                placeholder={`Message ${activeAgent.name}...`} 
-                value={userInput}
-                onChange={(e) => setUserInput(e.target.value)}
-              />
-            </div>
-            <button type="submit" className="send-button">
-              <span className="material-symbols-outlined" style={{ fontSize: '18px', fontWeight: 'bold' }}>send</span>
-            </button>
-          </form>
-        </main>
-
-        {/* Right Project Context Panel */}
-        <aside className="right-panel">
-          {/* Project Details Header */}
-          <div className="right-panel-header">
-            <span style={{ fontSize: '9px', color: '#a4aa8e', fontWeight: '700', letterSpacing: '0.1em' }}>
-              PROJECT
-            </span>
-            <h2 className="right-panel-title" style={{ marginTop: '6px' }}>
-              {activeProject}
-            </h2>
-            
-            {/* 3-4 Tech Tags */}
-            <div className="tech-tags-list">
-              {projects[activeProject]?.stack.split(', ').slice(0, 4).map((tech, i) => (
-                <span key={i} className="tech-tag">
-                  {tech}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {/* Project Roadmap Progress & Tasks */}
-          <div className="right-panel-body">
-            <div className="widget-card">
-              <div className="progress-header">
-                <span className="progress-title">Sprint Progress</span>
-                <span className="progress-percent">{completionPercentage}%</span>
-              </div>
-              
-              {/* Flat Progress Bar */}
-              <div className="progress-bar-bg">
-                <div 
-                  className="progress-bar-fill" 
-                  style={{ width: `${completionPercentage}%` }}
-                ></div>
-              </div>
-
-              {/* Task Roadmap checklist */}
-              <div className="roadmap-container">
-                {roadmap.map((task) => (
-                  <div 
-                    key={task.id} 
-                    className={`roadmap-item ${task.completed ? 'completed' : ''}`}
-                    onClick={() => handleToggleTask(task.id)}
-                  >
-                    <div className="roadmap-checkbox">
-                      {task.completed && (
-                        <span className="material-symbols-outlined" style={{ fontSize: '12px', fontWeight: 'bold' }}>done</span>
-                      )}
-                    </div>
-                    <span>{task.text}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            
-            {/* Simple switch project options */}
-            <div style={{ marginTop: 'auto' }}>
-              <span style={{ fontSize: '9px', color: '#a4aa8e', fontWeight: '700', letterSpacing: '0.1em', display: 'block', marginBottom: '8px' }}>
-                SWITCH OPERATIONS
-              </span>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {Object.keys(projects).map((proj) => (
-                  proj !== activeProject && (
-                    <button 
-                      key={proj} 
-                      className="minimal-project-btn"
-                      onClick={() => setActiveProject(proj)}
-                    >
-                      <span>{proj}</span>
-                      <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>arrow_forward</span>
-                    </button>
-                  )
-                ))}
-              </div>
-            </div>
-            
-          </div>
-        </aside>
-
-      </div>
-    </div>
+    <Routes>
+      <Route path="/" element={<LoginPage />} />
+      <Route path="/signup" element={<SignUpPage />} />
+      <Route path="/dashboard" element={
+        <DashboardPage 
+          agents={agents}
+          activeAgent={activeAgent}
+          setActiveAgentId={setActiveAgentId}
+          userInput={userInput}
+          setUserInput={setUserInput}
+          activeProject={activeProject}
+          setActiveProject={setActiveProject}
+          copiedId={copiedId}
+          handleCopyText={handleCopyText}
+          roadmap={roadmap}
+          handleToggleTask={handleToggleTask}
+          completionPercentage={completionPercentage}
+          projects={projects}
+          handleSendMessage={handleSendMessage}
+          chatEndRef={chatEndRef}
+        />
+      } />
+      <Route path="/settings" element={
+        <SettingsPage 
+          agents={agents}
+          activeAgent={activeAgent}
+          setActiveAgentId={setActiveAgentId}
+          activeSettingsTab={activeSettingsTab}
+          setActiveSettingsTab={setActiveSettingsTab}
+          handleToggleAgent={handleToggleAgent}
+          handleModelChange={handleModelChange}
+          isAddingAgent={isAddingAgent}
+          setIsAddingAgent={setIsAddingAgent}
+          newAgentName={newAgentName}
+          setNewAgentName={setNewAgentName}
+          newAgentRole={newAgentRole}
+          setNewAgentRole={setNewAgentRole}
+          newAgentModel={newAgentModel}
+          setNewAgentModel={setNewAgentModel}
+          handleAddNewAgent={handleAddNewAgent}
+          projects={projects}
+        />
+      } />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 }

@@ -24,7 +24,6 @@
   font-family: var(--font-geist-mono);
   margin: 0;
   padding: 0;
-  overflow: hidden;
 }
 
 body {
@@ -53,4 +52,8 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--accent-lime);
+}
+
+html {
+  scroll-behavior: smooth;
 }

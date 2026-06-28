@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import heroImg from '../assets/hero.png';
 import '../styles/landing.css';
 
 const gridAgents = [
@@ -17,6 +18,7 @@ const gridAgents = [
 
 export default function LandingPage() {
   const navigate = useNavigate();
+  const [activeSection, setActiveSection] = useState('');
 
   const handleGuestLogin = () => {
     localStorage.setItem("ff_auth", "guest");
@@ -24,111 +26,215 @@ export default function LandingPage() {
     navigate('/dashboard');
   };
 
+  const scrollToSection = (id) => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start' 
+      });
+    }
+  };
+
+  useEffect(() => {
+    const sections = ['features', 'agents', 'pricing'];
+    const observerOptions = {
+      root: null,
+      rootMargin: '-40% 0px -40% 0px', // detects center view triggers
+      threshold: 0
+    };
+
+    const observerCallback = (entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          setActiveSection(entry.target.id);
+        }
+      });
+    };
+
+    const observer = new IntersectionObserver(observerCallback, observerOptions);
+
+    sections.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        observer.observe(el);
+      }
+    });
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
   return (
     <div className="landing-container">
       <div className="noise-overlay"></div>
 
-      {/* Navbar Section */}
+      {/* Overhauled Frosted Glass Navbar */}
       <nav className="landing-navbar">
-        <span style={{ fontSize: '13px', fontWeight: '800', letterSpacing: '0.12em', color: 'var(--text-warm)' }}>
+        <span style={{ fontSize: '16px', fontWeight: '800', letterSpacing: '0.12em', color: '#FFF' }}>
           FOUNDER<span style={{ color: 'var(--accent-lime)' }}>//</span>FLOW
         </span>
-        <div style={{ display: 'flex', gap: '12px' }}>
-          <button className="outline-btn" onClick={() => navigate('/login')}>
+
+        {/* Center Nav Links with active section and click handlers */}
+        <div className="navbar-center">
+          <span 
+            className={`navbar-center-link ${activeSection === 'features' ? 'active' : ''}`}
+            onClick={() => scrollToSection('features')}
+          >
+            Features
+          </span>
+          <span className="navbar-link-divider"></span>
+          <span 
+            className={`navbar-center-link ${activeSection === 'agents' ? 'active' : ''}`}
+            onClick={() => scrollToSection('agents')}
+          >
+            Agents
+          </span>
+          <span className="navbar-link-divider"></span>
+          <span 
+            className={`navbar-center-link ${activeSection === 'pricing' ? 'active' : ''}`}
+            onClick={() => scrollToSection('pricing')}
+          >
+            Pricing
+          </span>
+        </div>
+
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <button className="navbar-signin-btn" onClick={() => navigate('/login')}>
             Sign In
           </button>
-          <button className="lime-btn" style={{ borderRadius: '0px' }} onClick={() => navigate('/signup')}>
-            Start Free
+          <button className="navbar-start-btn" onClick={() => navigate('/signup')}>
+            Start Free →
           </button>
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <header className="landing-hero">
-        <span className="landing-label">AI-POWERED CO-FOUNDER STACK</span>
-        <h1 className="landing-headline">
-          YOUR ENTIRE FOUNDING<br />TEAM. ALWAYS ON.
-        </h1>
-        <p className="landing-subtext">
-          10 specialized AI agents working in parallel on your product — code, growth, research, security, design, and more.
-        </p>
+      {/* Hero Section with split columns */}
+      <div className="landing-hero-wrapper">
+        <header className="landing-hero">
+          {/* Left Column (text content) */}
+          <div className="hero-left">
+            {/* Row 1: Badge */}
+            <div className="hero-badge-inline">
+              <span className="blinking-dot-inline">●</span>
+              AI-POWERED CO-FOUNDER STACK
+            </div>
 
-        <div className="landing-ctas">
-          <button className="lime-btn" style={{ borderRadius: '0px', padding: '14px 28px' }} onClick={() => navigate('/signup')}>
-            Start Building Free →
-          </button>
-          <button className="login-guest-btn" style={{ width: 'auto', padding: '14px 28px' }} onClick={handleGuestLogin}>
-            Enter as Guest
-          </button>
-        </div>
+            {/* Row 2: Headline */}
+            <h1 className="hero-headline">
+              YOUR ENTIRE<br />
+              FOUNDING TEAM.<br />
+              ALWAYS <span style={{ color: 'var(--accent-lime)' }}>ON.</span>
+            </h1>
 
-        {/* Small Agent Avatars Row */}
-        <div style={{ marginTop: '24px' }}>
-          <div className="landing-avatars-row">
-            {gridAgents.map((agent, i) => (
-              <div key={i} className="project-agent-bubble" style={{ width: '28px', height: '28px' }}>
-                {agent.avatar}
+            {/* Row 3: Subtext */}
+            <p className="hero-subtext">
+              10 specialized AI agents working in parallel — code, growth, research, security, design and more. Built for solo founders who move fast.
+            </p>
+
+            {/* Row 4: CTA buttons */}
+            <div className="hero-ctas">
+              <button className="hero-btn-filled" onClick={() => navigate('/signup')}>
+                Start Building Free →
+              </button>
+              <button className="hero-btn-dashed" onClick={handleGuestLogin}>
+                Enter as Guest
+              </button>
+            </div>
+
+            {/* Row 5: Thin divider line */}
+            <div className="hero-left-divider"></div>
+
+            {/* Row 6: Stats Row */}
+            <div className="hero-stats-row">
+              <div className="hero-stat-col">
+                <span className="hero-stat-val">10</span>
+                <span className="hero-stat-lbl">AI Agents</span>
               </div>
-            ))}
+              <div className="hero-stat-divider"></div>
+              <div className="hero-stat-col">
+                <span className="hero-stat-val">3x</span>
+                <span className="hero-stat-lbl">Faster Building</span>
+              </div>
+              <div className="hero-stat-divider"></div>
+              <div className="hero-stat-col">
+                <span className="hero-stat-val">100%</span>
+                <span className="hero-stat-lbl">Solo Founder</span>
+              </div>
+            </div>
           </div>
-          <div style={{ fontSize: '11px', color: '#6a7155', fontWeight: '700', marginTop: '10px' }}>
-            10 AI Co-Founders. Ready to deploy.
+
+          {/* Right Column (floating image) */}
+          <div className="hero-right">
+            <img src={heroImg} alt="Developer Illustration" className="hero-illustration" />
           </div>
+        </header>
+        <div className="hero-bottom-divider"></div>
+      </div>
+
+      {/* Overhauled Clean Features Section with id="features" */}
+      <section id="features" className="landing-features">
+        <div className="features-header">
+          <span className="section-label">WHY FOUNDERFLOW</span>
+          <h2 className="features-headline">
+            Everything a founding team does.<br />One dashboard.
+          </h2>
+          <p className="features-subtext">
+            No hiring. No meetings. Just execution.
+          </p>
         </div>
-      </header>
 
-      {/* Features Section */}
-      <section className="landing-features">
-        <div className="features-grid">
-          <div className="feature-col">
-            <span className="material-symbols-outlined feature-icon">smart_toy</span>
-            <h3 className="feature-title">Specialized Agents</h3>
-            <p className="feature-desc">
-              Each AI has one job. No generalist confusion. Pure focused execution.
-            </p>
-          </div>
-          
-          <div className="feature-col">
-            <span className="material-symbols-outlined feature-icon">folder_open</span>
-            <h3 className="feature-title">Project Workspaces</h3>
-            <p className="feature-desc">
-              Organize every product in its own workspace with full context and history.
+        <div className="features-grid-overhaul">
+          <div className="feature-column-clean">
+            <span className="feature-num">01</span>
+            <h3 className="feature-title-clean">Specialized Agents</h3>
+            <p className="feature-desc-clean">
+              Each AI has one focused role. No generalist confusion.
             </p>
           </div>
 
-          <div className="feature-col">
-            <span className="material-symbols-outlined feature-icon">bolt</span>
-            <h3 className="feature-title">Parallel Execution</h3>
-            <p className="feature-desc">
-              All agents work simultaneously. Ship in days, not months.
+          <div className="feature-column-clean">
+            <span className="feature-num">02</span>
+            <h3 className="feature-title-clean">Project Workspaces</h3>
+            <p className="feature-desc-clean">
+              Separate context per product. Full history and sprint tracking.
+            </p>
+          </div>
+
+          <div className="feature-column-clean">
+            <span className="feature-num">03</span>
+            <h3 className="feature-title-clean">Parallel Execution</h3>
+            <p className="feature-desc-clean">
+              All 10 agents work simultaneously. Ship in days, not months.
             </p>
           </div>
         </div>
       </section>
 
-      {/* Agents Grid Section */}
-      <section className="landing-agents-grid">
-        <div style={{ textAlign: 'center' }}>
-          <span className="landing-label">MEET YOUR CO-FOUNDERS</span>
-          <h2 style={{ fontSize: '24px', fontWeight: '800', margin: '8px 0 0 0', textTransform: 'uppercase' }}>
+      {/* YOUR CO-FOUNDERS Section with id="agents" */}
+      <section id="agents" className="landing-agents-grid-overhaul">
+        <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+          <span className="section-label">YOUR CO-FOUNDERS</span>
+          <h2 style={{ fontSize: '20px', fontWeight: '800', margin: '8px 0 0 0', textTransform: 'uppercase', color: '#FFF' }}>
             Real AI tools. Assigned roles. Actual output.
           </h2>
         </div>
 
-        <div className="agents-grid-container">
+        <div className="agents-grid-container-overhaul">
           {gridAgents.map((agent, i) => (
-            <div key={i} className="agent-grid-card">
-              <div className="project-agent-bubble" style={{ width: '32px', height: '32px', borderRadius: '4px' }}>
+            <div key={i} className="agent-grid-card-overhaul">
+              <div className="agent-grid-avatar-overhaul">
                 {agent.avatar}
               </div>
-              <div className="agent-grid-card-details">
-                <span style={{ fontSize: '13px', fontWeight: '800', color: 'var(--text-warm)' }}>
+              <div className="agent-grid-info-overhaul">
+                <span style={{ fontSize: '13px', fontWeight: '800', color: '#FFF' }}>
                   {agent.name}
                 </span>
-                <span style={{ fontSize: '10px', color: 'var(--accent-lime)' }}>
+                <span style={{ fontSize: '10px', color: 'var(--accent-lime)', fontWeight: '700' }}>
                   {agent.role}
                 </span>
-                <span style={{ fontSize: '11px', color: '#a4aa8e', marginTop: '4px', lineHeight: '1.4' }}>
+                <span style={{ fontSize: '11px', color: 'var(--text-muted-olive)', marginTop: '4px', lineHeight: '1.4' }}>
                   "{agent.desc}"
                 </span>
               </div>
@@ -137,26 +243,35 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* CTA Footer Section */}
-      <section className="landing-cta-footer">
-        <h2 style={{ fontSize: '24px', fontWeight: '800', margin: 0, textTransform: 'uppercase' }}>
+      {/* FINAL CTA Section with id="pricing" */}
+      <section id="pricing" className="landing-final-cta">
+        <h2 style={{ fontSize: '24px', fontWeight: '800', margin: 0, textTransform: 'uppercase', color: '#FFF' }}>
           Ready to build with your AI team?
         </h2>
-        <button className="lime-btn" style={{ borderRadius: '0px', padding: '16px 36px', fontSize: '13px' }} onClick={() => navigate('/signup')}>
+        <p style={{ fontSize: '13px', color: 'var(--text-muted-olive)', margin: 0 }}>
+          No credit card. No setup. Just ship.
+        </p>
+        <button className="hero-btn-filled" style={{ padding: '16px 36px', fontSize: '13px', marginTop: '8px' }} onClick={() => navigate('/signup')}>
           Start Free →
         </button>
-        <span style={{ fontSize: '11px', color: '#a4aa8e' }}>
-          No credit card. No setup. Just build.
-        </span>
-
-        <div className="footer-bottom">
-          <span>FOUNDER//FLOW</span>
-          <span>·</span>
-          <span>Built for solo founders</span>
-          <span>·</span>
-          <span>2026</span>
-        </div>
       </section>
+
+      {/* Overhauled Footer */}
+      <footer className="landing-footer-overhaul">
+        <div>
+          <span style={{ fontWeight: '800', letterSpacing: '0.12em', color: '#FFF' }}>
+            FOUNDER<span style={{ color: 'var(--accent-lime)' }}>//</span>FLOW
+          </span>
+        </div>
+        <div>
+          Built for solo founders · 2026
+        </div>
+        <div style={{ display: 'flex', gap: '16px' }}>
+          <span className="footer-nav-link" onClick={() => navigate('/login')}>Login</span>
+          <span>·</span>
+          <span className="footer-nav-link" onClick={() => navigate('/signup')}>Signup</span>
+        </div>
+      </footer>
     </div>
   );
 }

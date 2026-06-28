@@ -110,7 +110,7 @@ export default function App() {
       justifyContent: 'center', height: '100vh',
       background: '#0F1109', color: '#C8F04A',
       fontFamily: 'Geist Mono', fontSize: '12px',
-      letterSpacing: '0.1em'
+      letterSpacing: '0.15em'
     }}>
       INITIALIZING FOUNDERFLOW...
     </div>

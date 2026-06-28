@@ -13,6 +13,12 @@ export default function Sidebar({ agents, activeAgentId, setActiveAgentId }) {
     setActiveAgentId(agentId);
   };
 
+  const handleLogoutClick = () => {
+    localStorage.removeItem("ff_auth");
+    window.dispatchEvent(new Event("ff_auth_logout"));
+    navigate('/');
+  };
+
   return (
     <aside className="sidebar">
       <div className="sidebar-content">
@@ -71,7 +77,7 @@ export default function Sidebar({ agents, activeAgentId, setActiveAgentId }) {
 
         <button 
           className="minimal-project-btn" 
-          onClick={() => navigate('/')}
+          onClick={handleLogoutClick}
           style={{ borderColor: '#3d432b' }}
         >
           <span>LOG OUT</span>

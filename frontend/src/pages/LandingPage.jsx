@@ -16,13 +16,12 @@ const gridAgents = [
   { avatar: 'ST', name: 'Stitch', role: 'Design AI', desc: 'UI design, prototyping' }
 ];
 
-export default function LandingPage() {
+export default function LandingPage({ setGuestMode }) {
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('');
 
   const handleGuestLogin = () => {
-    localStorage.setItem("ff_auth", "guest");
-    window.dispatchEvent(new Event("ff_auth_login"));
+    if (setGuestMode) setGuestMode();
     navigate('/dashboard');
   };
 
@@ -142,10 +141,6 @@ export default function LandingPage() {
                 Enter as Guest
               </button>
             </div>
-
-            {/* Row 5: Thin divider line */}
-            <div className="hero-left-divider"></div>
-
             {/* Row 6: Stats Row */}
             <div className="hero-stats-row">
               <div className="hero-stat-col">

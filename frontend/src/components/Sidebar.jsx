@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { supabase } from '../lib/supabase';
 import AgentCard from './AgentCard';
 
 export default function Sidebar({ agents, activeAgentId, setActiveAgentId }) {
@@ -13,9 +14,9 @@ export default function Sidebar({ agents, activeAgentId, setActiveAgentId }) {
     setActiveAgentId(agentId);
   };
 
-  const handleLogoutClick = () => {
-    localStorage.removeItem("ff_auth");
-    window.dispatchEvent(new Event("ff_auth_logout"));
+  const handleLogoutClick = async () => {
+    await supabase.auth.signOut();
+    window.dispatchEvent(new Event("ff_guest_logout"));
     navigate('/');
   };
 

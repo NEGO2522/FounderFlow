@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '../lib/supabase';
 import '../styles/login.css';
 
 const brandTools = [
@@ -17,18 +18,50 @@ const brandTools = [
 
 export default function SignUpPage() {
   const navigate = useNavigate();
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
 
-  const handleSignUpSubmit = (e) => {
+  const handleEmailSignup = async (e) => {
     e.preventDefault();
-    localStorage.setItem("ff_auth", "true");
-    window.dispatchEvent(new Event("ff_auth_login"));
-    navigate('/dashboard');
+    setError(null);
+    setSuccess(null);
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+    setLoading(true);
+    
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { full_name: fullName }
+      }
+    });
+    
+    if (error) {
+      setError(error.message);
+    } else {
+      setSuccess('Check your email to confirm your account.');
+    }
+    setLoading(false);
   };
 
-  const handleGoogleLogin = () => {
-    localStorage.setItem("ff_auth", "true");
-    window.dispatchEvent(new Event("ff_auth_login"));
-    navigate('/dashboard');
+  const handleGoogleSignup = async () => {
+    setError(null);
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin + '/dashboard'
+      }
+    });
+    if (error) setError(error.message);
   };
 
   return (
@@ -75,13 +108,15 @@ export default function SignUpPage() {
             <span style={{ fontSize: '12px', color: '#a4aa8e' }}>Start free. No credit card required.</span>
           </div>
 
-          <form onSubmit={handleSignUpSubmit} className="login-form">
+          <form onSubmit={handleEmailSignup} className="login-form">
             <div className="settings-dummy-field">
               <label className="settings-label">Full Name</label>
               <input 
                 type="text" 
                 className="settings-input" 
                 placeholder="John Doe" 
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
                 required 
               />
             </div>
@@ -92,6 +127,8 @@ export default function SignUpPage() {
                 type="email" 
                 className="settings-input" 
                 placeholder="name@company.com" 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required 
               />
             </div>
@@ -102,6 +139,8 @@ export default function SignUpPage() {
                 type="password" 
                 className="settings-input" 
                 placeholder="••••••••" 
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 required 
               />
             </div>
@@ -112,18 +151,46 @@ export default function SignUpPage() {
                 type="password" 
                 className="settings-input" 
                 placeholder="••••••••" 
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
                 required 
               />
             </div>
 
-            <button type="submit" className="login-submit-btn" style={{ marginTop: '8px' }}>
-              Create Workspace
+            <button type="submit" className="login-submit-btn" style={{ marginTop: '8px' }} disabled={loading}>
+              {loading ? 'Creating Workspace...' : 'Create Workspace'}
             </button>
           </form>
 
+          {error && (
+            <div style={{
+              color: '#ff6b6b',
+              fontSize: '11px',
+              fontFamily: 'Geist Mono',
+              marginTop: '8px',
+              padding: '10px',
+              border: '1px solid rgba(255,107,107,0.3)',
+              background: 'rgba(255,107,107,0.05)'
+            }}>
+              {error}
+            </div>
+          )}
+
+          {success && (
+            <div style={{
+              color: '#C8F04A', fontSize: '11px',
+              fontFamily: 'Geist Mono', marginTop: '8px',
+              padding: '10px',
+              border: '1px solid rgba(200,240,74,0.3)',
+              background: 'rgba(200,240,74,0.05)'
+            }}>
+              ● {success}
+            </div>
+          )}
+
           <div className="login-divider">or continue with</div>
 
-          <button className="login-google-btn" onClick={handleGoogleLogin}>
+          <button className="login-google-btn" onClick={handleGoogleSignup}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
               <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>

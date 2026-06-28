@@ -8,6 +8,7 @@ import SettingsPage from './pages/SettingsPage';
 import ProjectsPage from './pages/ProjectsPage';
 import ProjectDetailPage from './pages/ProjectDetailPage';
 import LandingPage from './pages/LandingPage';
+import { supabase } from './lib/supabase';
 import './styles/global.css';
 
 export default function App() {
@@ -17,7 +18,9 @@ export default function App() {
   const [copiedId, setCopiedId] = useState(null);
 
   // Authentication State
-  const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem("ff_auth"));
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [isGuest, setIsGuest] = useState(false);
 
   // Settings tab selections
   const [activeSettingsTab, setActiveSettingsTab] = useState('agents');
@@ -27,6 +30,7 @@ export default function App() {
   const [newAgentName, setNewAgentName] = useState('');
   const [newAgentRole, setNewAgentRole] = useState('');
   const [newAgentModel, setNewAgentModel] = useState('Claude 3.5 Sonnet');
+  const chatEndRef = useRef(null);
 
   // Lifted projects list state
   const [activeProjectKey, setActiveProjectKey] = useState('food-delivery-app');
@@ -74,16 +78,43 @@ export default function App() {
 
   // Synchronization callback listener for auth changes
   useEffect(() => {
-    const handleAuthChange = () => {
-      setIsAuthenticated(!!localStorage.getItem("ff_auth"));
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsAuthenticated(!!session);
+      setAuthLoading(false);
+    });
+    
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setIsAuthenticated(!!session);
+        if (!session) {
+          setIsGuest(false);
+        }
+      }
+    );
+
+    const handleGuestLogout = () => {
+      setIsGuest(false);
     };
-    window.addEventListener("ff_auth_login", handleAuthChange);
-    window.addEventListener("ff_auth_logout", handleAuthChange);
+
+    window.addEventListener("ff_guest_logout", handleGuestLogout);
+
     return () => {
-      window.removeEventListener("ff_auth_login", handleAuthChange);
-      window.removeEventListener("ff_auth_logout", handleAuthChange);
+      subscription.unsubscribe();
+      window.removeEventListener("ff_guest_logout", handleGuestLogout);
     };
   }, []);
+
+  if (authLoading) return (
+    <div style={{
+      display: 'flex', alignItems: 'center', 
+      justifyContent: 'center', height: '100vh',
+      background: '#0F1109', color: '#C8F04A',
+      fontFamily: 'Geist Mono', fontSize: '12px',
+      letterSpacing: '0.1em'
+    }}>
+      INITIALIZING FOUNDERFLOW...
+    </div>
+  );
 
   const activeProjectData = projectsList[activeProjectKey] || Object.values(projectsList)[0];
 
@@ -99,154 +130,126 @@ export default function App() {
 
   const completionPercentage = getProgress(activeProjectData);
 
-  const projects = Object.values(projectsList).reduce((acc, p) => {
-    acc[p.name] = { stack: p.stack };
-    return acc;
-  }, {});
-
-  const setActiveProject = (name) => {
-    const found = Object.values(projectsList).find(p => p.name === name);
-    if (found) {
-      setActiveProjectKey(found.id);
-    }
-  };
-
-  const visibleAgents = agents.filter(agent => agent.enabled);
-  const activeAgent = agents.find(a => a.id === activeAgentId) || visibleAgents[0] || agents[0];
-  
-  const chatEndRef = useRef(null);
-
-  // Scroll chat
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [activeAgent?.messages]);
-
-  const handleToggleTask = (id) => {
-    setProjectsList(prev => {
-      const currentProject = prev[activeProjectKey];
-      const updatedRoadmap = currentProject.roadmap.map(task => {
-        if (task.id === id) {
-          return { ...task, completed: !task.completed };
-        }
-        return task;
-      });
-      return {
-        ...prev,
-        [activeProjectKey]: {
-          ...currentProject,
-          roadmap: updatedRoadmap
-        }
-      };
-    });
-  };
-
   const handleToggleProjectTask = (projectId, taskId) => {
     setProjectsList(prev => {
-      const targetProject = prev[projectId];
-      if (!targetProject) return prev;
-      const updatedRoadmap = targetProject.roadmap.map(task => {
-        if (task.id === taskId) {
-          return { ...task, completed: !task.completed };
-        }
-        return task;
-      });
+      const proj = prev[projectId];
+      if (!proj) return prev;
+      const updatedRoadmap = proj.roadmap.map(task => 
+        task.id === taskId ? { ...task, completed: !task.completed } : task
+      );
       return {
         ...prev,
         [projectId]: {
-          ...targetProject,
+          ...proj,
           roadmap: updatedRoadmap
         }
       };
     });
   };
 
-  const handleCopyText = (content, title) => {
-    navigator.clipboard.writeText(content);
-    setCopiedId(title);
-    setTimeout(() => setCopiedId(null), 2000);
+  const handleToggleTask = (taskId) => {
+    handleToggleProjectTask(activeProjectKey, taskId);
   };
 
-  const handleToggleAgent = (id) => {
-    setAgents(prev => prev.map(agent => {
-      if (agent.id === id) {
-        return { ...agent, enabled: !agent.enabled };
-      }
-      return agent;
-    }));
+  const handleToggleAgent = (agentId) => {
+    setAgents(
+      agents.map((agent) =>
+        agent.id === agentId ? { ...agent, enabled: !agent.enabled } : agent
+      )
+    );
   };
 
-  const handleModelChange = (id, model) => {
-    setAgents(prev => prev.map(agent => {
-      if (agent.id === id) {
-        return { ...agent, model };
-      }
-      return agent;
-    }));
+  const handleModelChange = (agentId, modelName) => {
+    setAgents(
+      agents.map((agent) =>
+        agent.id === agentId ? { ...agent, activeModel: modelName } : agent
+      )
+    );
   };
 
   const handleAddNewAgent = (e) => {
     e.preventDefault();
-    if (!newAgentName.trim() || !newAgentRole.trim()) return;
+    if (!newAgentName || !newAgentRole) return;
 
-    const newId = newAgentName.toLowerCase().replace(/\s+/g, '-');
-    const initials = newAgentName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
-    
     const newAgent = {
-      id: newId,
+      id: newAgentName.toLowerCase().replace(/\s+/g, '-'),
       name: newAgentName,
       role: newAgentRole,
-      avatar: initials,
-      status: 'Active',
+      avatar: newAgentName.slice(0, 2).toUpperCase(),
       enabled: true,
-      model: newAgentModel,
-      activeTask: 'Awaiting instruction',
+      activeModel: newAgentModel,
+      activeTask: 'Awaiting directive...',
       messages: [
-        { sender: 'agent', text: `Agent ${newAgentName} provisioned successfully. Running on ${newAgentModel}. How can I assist?`, timestamp: new Date().toTimeString().slice(0, 5) }
+        {
+          sender: 'agent',
+          text: `Co-founder ${newAgentName} has initialized. Role specified: "${newAgentRole}". Ready for deployment.`,
+          timestamp: new Date().toTimeString().slice(0, 5)
+        }
       ]
     };
 
-    setAgents(prev => [...prev, newAgent]);
+    setAgents([...agents, newAgent]);
+    setIsAddingAgent(false);
     setNewAgentName('');
     setNewAgentRole('');
-    setIsAddingAgent(false);
   };
 
-  const handleSendMessage = (e) => {
-    e.preventDefault();
-    if (!userInput.trim() || !activeAgent) return;
+  const activeAgent = agents.find((a) => a.id === activeAgentId) || agents[0];
 
-    const userMessageText = userInput;
-    setUserInput('');
+  const handleCopyText = (text, id) => {
+    navigator.clipboard.writeText(text);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
 
-    const userMessage = {
-      sender: 'user',
-      text: userMessageText,
-      timestamp: new Date().toTimeString().slice(0, 5)
-    };
+  const projects = Object.values(projectsList).map(proj => ({
+    id: proj.id,
+    name: proj.name,
+    status: proj.status,
+    progress: getProgress(proj),
+    agentsCount: proj.agents.length
+  }));
 
-    setAgents(prevAgents => 
-      prevAgents.map(agent => {
-        if (agent.id === activeAgent.id) {
+  const setActiveProject = (projectName) => {
+    const foundKey = Object.keys(projectsList).find(
+      key => projectsList[key].name === projectName
+    );
+    if (foundKey) {
+      setActiveProjectKey(foundKey);
+    }
+  };
+
+  const handleSendMessage = (text) => {
+    if (!text.trim()) return;
+
+    setAgents(
+      agents.map((agent) => {
+        if (agent.id === activeAgentId) {
           return {
             ...agent,
-            messages: [...agent.messages, userMessage],
-            status: 'Working',
-            activeTask: `Refining requested deliverables`
+            messages: [
+              ...agent.messages,
+              {
+                sender: 'user',
+                text: text,
+                timestamp: new Date().toTimeString().slice(0, 5)
+              }
+            ]
           };
         }
         return agent;
       })
     );
 
+    setUserInput('');
+
     setTimeout(() => {
-      const response = getSimulatedResponse(activeAgent.name, userMessageText);
+      const response = getSimulatedResponse(activeAgent.name, text);
       setAgents(prevAgents => 
-        prevAgents.map(agent => {
-          if (agent.id === activeAgent.id) {
+        prevAgents.map((agent) => {
+          if (agent.id === activeAgentId) {
             return {
               ...agent,
-              status: 'Active',
-              activeTask: 'Awaiting instruction',
               messages: [
                 ...agent.messages,
                 {
@@ -273,9 +276,7 @@ export default function App() {
           text: "I've structured a migration update. Exposing relational tables and active coordinates tracker index mapping.",
           artifact: {
             title: 'migration.sql',
-            content: `-- PostgreSQL Database Update
-ALTER TABLE orders ADD COLUMN tracker POINT;
-CREATE INDEX idx_orders_tracker ON orders USING gist(tracker);`
+            content: `-- PostgreSQL Database Update\nALTER TABLE orders ADD COLUMN tracker POINT;\nCREATE INDEX idx_orders_tracker ON orders USING gist(tracker);`
           }
         };
       }
@@ -283,13 +284,7 @@ CREATE INDEX idx_orders_tracker ON orders USING gist(tracker);`
         text: "I've structured the Actix-web listener wrapper setup config files.",
         artifact: {
           title: 'main.rs',
-          content: `// Minimal API Wrapper
-use actix_web::{get, App, HttpResponse, HttpServer, Responder};
-
-#[get("/status")]
-async fn status() -> impl Responder {
-    HttpResponse::Ok().body("OK")
-}`
+          content: `// Minimal API Wrapper\nuse actix_web::{get, App, HttpResponse, HttpServer, Responder};\n\n#[get("/status")]\nasync fn status() -> impl Responder {\n    HttpResponse::Ok().body("OK")\n}`
         }
       };
     } else if (agentName === 'ChatGPT') {
@@ -297,9 +292,7 @@ async fn status() -> impl Responder {
         text: "Launch slogans and copy structures updated for the campaign.",
         artifact: {
           title: 'copy.md',
-          content: `# Launch Campaign Copy
-- Tagline: Local gourmet, 15-minute delivery.
-- Objective: Convert top-of-funnel downtown traffic.`
+          content: `# Launch Campaign Copy\n- Tagline: Local gourmet, 15-minute delivery.\n- Objective: Convert top-of-funnel downtown traffic.`
         }
       };
     } else if (agentName === 'Gemini' || agentName === 'Perplexity') {
@@ -307,9 +300,7 @@ async fn status() -> impl Responder {
         text: "Security headers audited. Recommendations exported below.",
         artifact: {
           title: 'security.yaml',
-          content: `headers:
-  strict-transport-security: max-age=31536000; includeSubDomains
-  x-frame-options: DENY`
+          content: `headers:\n  strict-transport-security: max-age=31536000; includeSubDomains\n  x-frame-options: DENY`
         }
       };
     }
@@ -322,21 +313,21 @@ async fn status() -> impl Responder {
 
   // Auth Protection Guard Wrappers
   const Protected = ({ children }) => {
-    return isAuthenticated ? children : <Navigate to="/" replace />;
+    return (isAuthenticated || isGuest) ? children : <Navigate to="/" replace />;
   };
 
   const Public = ({ children }) => {
-    return isAuthenticated ? <Navigate to="/dashboard" replace /> : children;
+    return (isAuthenticated || isGuest) ? <Navigate to="/dashboard" replace /> : children;
   };
 
   return (
     <Routes>
       <Route path="/" element={
-        isAuthenticated ? <Navigate to="/dashboard" replace /> : <LandingPage />
+        (isAuthenticated || isGuest) ? <Navigate to="/dashboard" replace /> : <LandingPage setGuestMode={() => setIsGuest(true)} />
       } />
       <Route path="/login" element={
         <Public>
-          <LoginPage />
+          <LoginPage setGuestMode={() => setIsGuest(true)} />
         </Public>
       } />
       <Route path="/signup" element={

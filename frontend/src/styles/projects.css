@@ -112,12 +112,14 @@
   height: calc(100vh - 56px);
   background-color: var(--bg-deep);
   overflow: hidden;
+  overflow-x: hidden;
 }
 
 .project-detail-main {
   flex: 1;
   padding: 40px;
   overflow-y: auto;
+  overflow-x: hidden;
   display: grid;
   grid-template-columns: 60% 40%;
   gap: 40px;

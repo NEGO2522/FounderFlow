@@ -23,20 +23,20 @@ export default function Sidebar({ agents, activeAgentId, setActiveAgentId }) {
   return (
     <aside className="sidebar">
       <div className="sidebar-content">
-        {agents.map((agent) => {
-          const isAgentActive = activeAgentId === agent.id;
-          // Filter out disabled agents in dashboard view, but show all in settings view!
-          if (location.pathname === '/dashboard' && !agent.enabled) return null;
-          
-          return (
-            <AgentCard 
-              key={agent.id}
-              agent={agent}
-              isActive={isAgentActive && location.pathname === '/dashboard'}
-              onClick={() => handleAgentClick(agent.id)}
-            />
-          );
-        })}
+        {agents
+          .filter(agent => agent.enabled !== false)
+          .map((agent) => {
+            const isAgentActive = activeAgentId === agent.id;
+            
+            return (
+              <AgentCard 
+                key={agent.id}
+                agent={agent}
+                isActive={isAgentActive && location.pathname === '/dashboard'}
+                onClick={() => handleAgentClick(agent.id)}
+              />
+            );
+          })}
       </div>
 
       {/* Navigation buttons in footer */}
@@ -46,7 +46,7 @@ export default function Sidebar({ agents, activeAgentId, setActiveAgentId }) {
           onClick={() => navigate('/projects')}
           style={{ borderStyle: 'dashed', borderColor: location.pathname.startsWith('/projects') ? 'var(--accent-lime)' : 'var(--border-card)' }}
         >
-          <span>PROJECTS</span>
+          <span>Projects</span>
           <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>
             folder
           </span>
@@ -57,24 +57,11 @@ export default function Sidebar({ agents, activeAgentId, setActiveAgentId }) {
           onClick={() => navigate('/settings')}
           style={{ borderStyle: 'dashed', borderColor: location.pathname === '/settings' ? 'var(--accent-lime)' : 'var(--border-card)' }}
         >
-          <span>SETTINGS</span>
+          <span>Settings</span>
           <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>
             settings
           </span>
         </button>
-
-        {location.pathname !== '/dashboard' && (
-          <button 
-            className="minimal-project-btn" 
-            onClick={() => navigate('/dashboard')}
-            style={{ borderStyle: 'dashed', borderColor: 'var(--accent-lime)' }}
-          >
-            <span>CONSOLE</span>
-            <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>
-              terminal
-            </span>
-          </button>
-        )}
 
         <button onClick={handleLogout} style={{
           width: '100%',
@@ -89,7 +76,7 @@ export default function Sidebar({ agents, activeAgentId, setActiveAgentId }) {
           textAlign: 'left',
           marginTop: '8px'
         }}>
-          ⎋ LOGOUT
+          Log Out
         </button>
       </div>
     </aside>

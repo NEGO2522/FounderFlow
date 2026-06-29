@@ -100,7 +100,8 @@ export function useDatabase(user) {
         avatar: a.avatar,
         enabled: a.enabled,
         model: a.model || a.activeModel,
-        active_task: a.activeTask
+        active_task: a.activeTask,
+        link: a.link || ''
       })))
 
     if (error) console.error('Save agents error:', error)
@@ -125,6 +126,7 @@ export function useDatabase(user) {
       enabled: a.enabled,
       model: a.model,
       activeTask: a.active_task,
+      link: a.link,
       status: 'Active',
       messages: [
         {

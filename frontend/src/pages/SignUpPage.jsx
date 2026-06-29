@@ -78,7 +78,7 @@ export default function SignUpPage() {
         {/* Center tagline + agent list */}
         <div className="login-center-content">
           <h1 className="login-tagline">
-            Build faster with your AI team.
+            Build your idea with AI.
           </h1>
           
           <div className="login-agent-previews">
@@ -96,7 +96,7 @@ export default function SignUpPage() {
 
         {/* Bottom footnote */}
         <div className="login-footer-text">
-          TRUSTED BY SOLO FOUNDERS
+          Used by solo builders
         </div>
       </div>
 
@@ -104,8 +104,8 @@ export default function SignUpPage() {
       <div className="login-right-auth">
         <div className="login-auth-card">
           <div className="login-auth-header">
-            <h2 style={{ fontSize: '20px', fontWeight: '800', color: 'var(--text-warm)', margin: 0 }}>Create your workspace</h2>
-            <span style={{ fontSize: '12px', color: '#a4aa8e' }}>Start free. No credit card required.</span>
+            <h2 style={{ fontSize: '20px', fontWeight: '800', color: 'var(--text-warm)', margin: 0 }}>Create your account</h2>
+            <span style={{ fontSize: '12px', color: '#a4aa8e' }}>Free to start. No card needed.</span>
           </div>
 
           <form onSubmit={handleEmailSignup} className="login-form">

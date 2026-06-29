@@ -25,13 +25,6 @@ export default function ProjectDetailPage({ agents, activeAgentId, setActiveAgen
   const totalCount = project.roadmap.length;
   const pct = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
-  const sampleLogs = [
-    { avatar: 'CL', name: 'Claude', action: 'Reviewed authentication middleware', time: '2h ago' },
-    { avatar: 'GP', name: 'ChatGPT', action: 'Generated marketing copy draft', time: '4h ago' },
-    { avatar: 'DS', name: 'DeepSeek', action: 'Refactored database schema', time: '6h ago' },
-    { avatar: 'GM', name: 'Gemini', action: 'Completed competitor research', time: '8h ago' }
-  ];
-
   return (
     <div className="dashboard-container">
       <div className="noise-overlay"></div>
@@ -73,9 +66,8 @@ export default function ProjectDetailPage({ agents, activeAgentId, setActiveAgen
                 </div>
               </div>
 
-              {/* Sprint Roadmap Section */}
               <div className="project-detail-card">
-                <h3 className="project-detail-card-title">Sprint Roadmap</h3>
+                <h3 className="project-detail-card-title">YOUR TASKS</h3>
                 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', fontWeight: '700' }}>
@@ -105,31 +97,77 @@ export default function ProjectDetailPage({ agents, activeAgentId, setActiveAgen
                 </div>
               </div>
 
-              {/* Activity Log Section */}
+              <div className="project-detail-card">
+                <h3 className="project-detail-card-title">QUICK STATS</h3>
+                
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <div className="detail-stats-row">
+                    <span className="detail-stats-label">Done</span>
+                    <span className="detail-stats-value">{completedCount}/{totalCount}</span>
+                  </div>
+                  <div className="detail-stats-row">
+                    <span className="detail-stats-label">AIs Working</span>
+                    <span className="detail-stats-value">{project.agents.length}</span>
+                  </div>
+                  <div className="detail-stats-row">
+                    <span className="detail-stats-label">Last Update</span>
+                    <span className="detail-stats-value">
+                      {project.updated_at
+                        ? (() => {
+                            const diff = Date.now() - new Date(project.updated_at).getTime()
+                            const hrs = Math.floor(diff/3600000)
+                            const days = Math.floor(diff/86400000)
+                            if (hrs < 1) return 'Just now'
+                            if (hrs < 24) return `${hrs}h ago`
+                            return `${days}d ago`
+                          })()
+                        : 'Recently'}
+                    </span>
+                  </div>
+                  <div className="detail-stats-row">
+                    <span className="detail-stats-label">Created</span>
+                    <span className="detail-stats-value">
+                      {project.created_at 
+                        ? new Date(project.created_at).toLocaleDateString('en-US', { 
+                            month: 'long', year: 'numeric' 
+                          })
+                        : 'Recently'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
               <div className="activity-log-container">
-                <h3 className="project-detail-card-title" style={{ paddingLeft: '4px' }}>Activity Log</h3>
+                <h3 className="project-detail-card-title" style={{ paddingLeft: '4px' }}>RECENT ACTIVITY</h3>
                 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  {sampleLogs.map((log, i) => (
-                    <div key={i} className="activity-log-row">
-                      <div className="activity-log-left">
-                        <div className="activity-log-avatar">{log.avatar}</div>
-                        <span className="activity-log-text">
-                          <strong>{log.name}</strong> — {log.action}
+                  {(project.agents || []).slice(0, 4).map((agentId, i) => {
+                    const agent = agents.find(a => a.id === agentId)
+                    if (!agent) return null
+                    return (
+                      <div key={i} className="activity-log-row">
+                        <div className="activity-log-left">
+                          <div className="activity-log-avatar">
+                            {agent.avatar}
+                          </div>
+                          <span className="activity-log-text">
+                            <strong>{agent.name}</strong> — {agent.role}
+                          </span>
+                        </div>
+                        <span className="activity-log-time">
+                          Active
                         </span>
                       </div>
-                      <span className="activity-log-time">{log.time}</span>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               </div>
             </div>
 
             {/* Right Column (40%) */}
             <div className="detail-right-col">
-              {/* Assigned Agents Card */}
               <div className="project-detail-card">
-                <h3 className="project-detail-card-title">Assigned Agents</h3>
+                <h3 className="project-detail-card-title">AI TEAM ON THIS</h3>
                 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   {project.agents.map((agentId) => {
@@ -150,30 +188,6 @@ export default function ProjectDetailPage({ agents, activeAgentId, setActiveAgen
                 <button className="outline-btn" style={{ width: '100%', marginTop: '8px' }}>
                   + Assign Agent
                 </button>
-              </div>
-
-              {/* Project Stats Card */}
-              <div className="project-detail-card">
-                <h3 className="project-detail-card-title">Project Stats</h3>
-                
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  <div className="detail-stats-row">
-                    <span className="detail-stats-label">Tasks Completed</span>
-                    <span className="detail-stats-value">{completedCount}/{totalCount}</span>
-                  </div>
-                  <div className="detail-stats-row">
-                    <span className="detail-stats-label">Agents Active</span>
-                    <span className="detail-stats-value">{project.agents.length}</span>
-                  </div>
-                  <div className="detail-stats-row">
-                    <span className="detail-stats-label">Last Activity</span>
-                    <span className="detail-stats-value">2 hours ago</span>
-                  </div>
-                  <div className="detail-stats-row">
-                    <span className="detail-stats-label">Created</span>
-                    <span className="detail-stats-value">June 2026</span>
-                  </div>
-                </div>
               </div>
             </div>
 

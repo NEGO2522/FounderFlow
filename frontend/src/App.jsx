@@ -54,7 +54,7 @@ export default function App() {
   const [isAddingAgent, setIsAddingAgent] = useState(false);
   const [newAgentName, setNewAgentName] = useState('');
   const [newAgentRole, setNewAgentRole] = useState('');
-  const [newAgentModel, setNewAgentModel] = useState('Claude 3.5 Sonnet');
+  const [newAgentLink, setNewAgentLink] = useState('');
   const chatEndRef = useRef(null);
 
   // Lifted projects list state
@@ -104,6 +104,8 @@ export default function App() {
       const savedProjects = await loadProjects();
       if (savedProjects && Object.keys(savedProjects).length > 0) {
         setProjectsList(savedProjects);
+        const keys = Object.keys(savedProjects);
+        setActiveProjectKey(keys[0]);
         setHasProjects(true);
       } else {
         // First-time user - they have no projects yet
@@ -111,8 +113,9 @@ export default function App() {
       }
 
       const savedAgents = await loadAgents();
-      if (savedAgents) {
+      if (savedAgents && savedAgents.length > 0) {
         setAgents(savedAgents);
+        setActiveAgentId(savedAgents[0].id);
       }
     };
 
@@ -184,11 +187,21 @@ export default function App() {
   };
 
   const handleToggleAgent = (agentId) => {
-    setAgents(
-      agents.map((agent) =>
-        agent.id === agentId ? { ...agent, enabled: !agent.enabled } : agent
-      )
+    const updated = agents.map(a =>
+      a.id === agentId 
+        ? { ...a, enabled: !a.enabled } 
+        : a
     );
+    setAgents(updated);
+    saveAgents(updated);
+    
+    // If disabled agent was active, 
+    // switch to first enabled agent
+    const toggledAgent = updated.find(a => a.id === agentId);
+    if (!toggledAgent.enabled && activeAgentId === agentId) {
+      const firstEnabled = updated.find(a => a.enabled);
+      if (firstEnabled) setActiveAgentId(firstEnabled.id);
+    }
   };
 
   const handleModelChange = (agentId, modelName) => {
@@ -199,9 +212,34 @@ export default function App() {
     );
   };
 
+  const handleRoleChange = (agentId, newRole) => {
+    const updated = agents.map(a => 
+      a.id === agentId ? { ...a, role: newRole } : a
+    );
+    setAgents(updated);
+    saveAgents(updated);
+  };
+
   const handleAddNewAgent = (e) => {
     e.preventDefault();
-    if (!newAgentName || !newAgentRole) return;
+    
+    // Validation
+    if (!newAgentName.trim()) {
+      alert('Agent name is required');
+      return;
+    }
+    if (!newAgentRole.trim()) {
+      alert('Agent role is required');
+      return;
+    }
+    if (!newAgentLink.trim()) {
+      alert('AI Tool link is required');
+      return;
+    }
+    if (!newAgentLink.startsWith('http')) {
+      alert('Please enter a valid URL starting with http');
+      return;
+    }
 
     const newAgent = {
       id: newAgentName.toLowerCase().replace(/\s+/g, '-'),
@@ -209,8 +247,9 @@ export default function App() {
       role: newAgentRole,
       avatar: newAgentName.slice(0, 2).toUpperCase(),
       enabled: true,
-      activeModel: newAgentModel,
+      activeModel: 'Claude 3.5 Sonnet',
       activeTask: 'Awaiting directive...',
+      link: newAgentLink,
       messages: [
         {
           sender: 'agent',
@@ -226,6 +265,7 @@ export default function App() {
     setIsAddingAgent(false);
     setNewAgentName('');
     setNewAgentRole('');
+    setNewAgentLink('');
   };
 
   const handleProjectLaunch = (newProject, configuredAgents) => {
@@ -235,6 +275,10 @@ export default function App() {
     }));
     setAgents(configuredAgents);
     setActiveProjectKey(newProject.id);
+    // Set first agent as active
+    if (configuredAgents.length > 0) {
+      setActiveAgentId(configuredAgents[0].id);
+    }
     setHasProjects(true);
   };
 
@@ -382,6 +426,17 @@ export default function App() {
           )}
         </Protected>
       } />
+      <Route path="/new-project-fresh" element={
+        <Protected isAuthenticated={isAuthenticated} isGuest={isGuest}>
+          <ProjectSetupPage 
+            saveProject={saveProject}
+            saveTasks={saveTasks}
+            saveAgents={saveAgents}
+            onProjectLaunch={handleProjectLaunch}
+            freshStart={true}
+          />
+        </Protected>
+      } />
       <Route path="/dashboard" element={
         <Protected isAuthenticated={isAuthenticated} isGuest={isGuest}>
           <DashboardPage 
@@ -419,10 +474,12 @@ export default function App() {
             setNewAgentName={setNewAgentName}
             newAgentRole={newAgentRole}
             setNewAgentRole={setNewAgentRole}
-            newAgentModel={newAgentModel}
-            setNewAgentModel={setNewAgentModel}
+            newAgentLink={newAgentLink}
+            setNewAgentLink={setNewAgentLink}
             handleAddNewAgent={handleAddNewAgent}
             projects={projects}
+            handleRoleChange={handleRoleChange}
+            setActiveProjectKey={setActiveProjectKey}
           />
         </Protected>
       } />

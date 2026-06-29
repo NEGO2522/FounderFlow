@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import TopBar from '../components/TopBar';
 import Sidebar from '../components/Sidebar';
 import '../styles/settings.css';
@@ -17,48 +18,84 @@ export default function SettingsPage({
   setNewAgentName,
   newAgentRole,
   setNewAgentRole,
-  newAgentModel,
-  setNewAgentModel,
+  newAgentLink,
+  setNewAgentLink,
   handleAddNewAgent,
-  projects
+  projects,
+  handleRoleChange,
+  setActiveProjectKey
 }) {
+  const navigate = useNavigate();
+  const [formErrors, setFormErrors] = React.useState({});
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const errors = {};
+    if (!newAgentName.trim()) errors.name = true;
+    if (!newAgentRole.trim()) errors.role = true;
+    if (!newAgentLink.trim()) errors.link = true;
+    setFormErrors(errors);
+    if (Object.keys(errors).length > 0) return;
+
+    handleAddNewAgent(e);
+  };
+
   const renderAgentsTab = () => {
     return (
       <>
         <div className="settings-header-row">
           <div>
-            <h2 className="settings-title">AI Agents Orchestration</h2>
-            <div className="settings-subtitle">Enable, disable, and choose underlying LLM models for your co-founder pool.</div>
+            <h2 className="settings-title">Your AI Team</h2>
+            <div className="settings-subtitle">Turn agents on or off. Edit what each one does.</div>
+            <button 
+              onClick={() => navigate('/new-project')}
+              style={{
+                background: 'transparent',
+                border: '1px solid #C8F04A',
+                color: '#C8F04A',
+                fontFamily: 'Geist Mono',
+                fontSize: '10px',
+                letterSpacing: '0.1em',
+                padding: '8px 16px',
+                cursor: 'pointer',
+                marginTop: '8px'
+              }}
+            >
+              ⟳ Change Workflow
+            </button>
           </div>
         </div>
 
         {/* List of Agents Settings */}
         <div className="settings-card-list">
           {agents.map((agent) => (
-            <div key={agent.id} className="settings-card">
+            <div 
+              key={agent.id} 
+              className="settings-card"
+              style={{ 
+                opacity: agent.enabled ? 1 : 0.4,
+                transition: 'opacity 0.2s ease'
+              }}
+            >
               <div className="settings-card-left">
-                <div className="agent-avatar">
+                <div 
+                  className="agent-avatar"
+                  style={{ borderColor: agent.enabled ? '' : '#2E3320' }}
+                >
                   {agent.avatar}
                 </div>
                 <div className="settings-agent-details">
                   <span className="settings-agent-name">{agent.name}</span>
-                  <span className="settings-agent-role">{agent.role}</span>
+                  <span 
+                    className="settings-agent-role"
+                    style={{ color: agent.enabled ? '' : '#6B7155' }}
+                  >
+                    {agent.role}
+                  </span>
                 </div>
               </div>
               
               <div className="settings-card-right">
-                {/* Model Selector Dropdown */}
-                <select 
-                  className="settings-select"
-                  value={agent.model}
-                  onChange={(e) => handleModelChange(agent.id, e.target.value)}
-                >
-                  <option value="Claude 3.5 Sonnet">Claude 3.5 Sonnet</option>
-                  <option value="GPT-4o">GPT-4o</option>
-                  <option value="Gemini 1.5 Pro">Gemini 1.5 Pro</option>
-                  <option value="Llama 3.1 70B">Llama 3.1 70B</option>
-                  <option value="DeepSeek Coder">DeepSeek Coder</option>
-                </select>
 
                 {/* Flat Toggle Switch */}
                 <div 
@@ -69,7 +106,17 @@ export default function SettingsPage({
                   <span className="toggle-dot"></span>
                 </div>
 
-                <button className="outline-btn">Configure</button>
+                <button 
+                  className="outline-btn"
+                  onClick={() => {
+                    const newRole = prompt(`New role for ${agent.name}:`, agent.role)
+                    if (newRole && newRole.trim()) {
+                      handleRoleChange(agent.id, newRole.trim())
+                    }
+                  }}
+                >
+                  Edit Role
+                </button>
               </div>
             </div>
           ))}
@@ -82,7 +129,7 @@ export default function SettingsPage({
             Add New Agent
           </button>
         ) : (
-          <form onSubmit={handleAddNewAgent} className="settings-form-container" style={{ marginTop: '16px' }}>
+          <form onSubmit={handleSubmit} className="settings-form-container" style={{ marginTop: '16px' }}>
             <span style={{ fontSize: '11px', fontWeight: '800', color: 'var(--accent-lime)' }}>CREATE NEW AI CO-FOUNDER</span>
             <div className="settings-form-grid">
               <div className="settings-form-group">
@@ -92,9 +139,24 @@ export default function SettingsPage({
                   className="settings-input" 
                   placeholder="e.g. Vector" 
                   value={newAgentName}
-                  onChange={(e) => setNewAgentName(e.target.value)}
+                  onChange={(e) => {
+                    setNewAgentName(e.target.value);
+                    setFormErrors(prev => ({ ...prev, name: false }));
+                  }}
                   required
+                  style={{ border: formErrors.name ? '1px solid #ff6b6b' : '1px solid #2E3320' }}
                 />
+                {formErrors.name && (
+                  <span style={{
+                    color: '#ff6b6b',
+                    fontSize: '10px',
+                    fontFamily: 'Geist Mono',
+                    display: 'block',
+                    marginTop: '4px'
+                  }}>
+                    This field is required
+                  </span>
+                )}
               </div>
               <div className="settings-form-group">
                 <label className="settings-label">Agent Role</label>
@@ -103,24 +165,51 @@ export default function SettingsPage({
                   className="settings-input" 
                   placeholder="e.g. Systems engineer" 
                   value={newAgentRole}
-                  onChange={(e) => setNewAgentRole(e.target.value)}
+                  onChange={(e) => {
+                    setNewAgentRole(e.target.value);
+                    setFormErrors(prev => ({ ...prev, role: false }));
+                  }}
                   required
+                  style={{ border: formErrors.role ? '1px solid #ff6b6b' : '1px solid #2E3320' }}
                 />
+                {formErrors.role && (
+                  <span style={{
+                    color: '#ff6b6b',
+                    fontSize: '10px',
+                    fontFamily: 'Geist Mono',
+                    display: 'block',
+                    marginTop: '4px'
+                  }}>
+                    This field is required
+                  </span>
+                )}
               </div>
             </div>
-            <div className="settings-form-group" style={{ maxWidth: '300px' }}>
-              <label className="settings-label">Primary AI Model</label>
-              <select 
-                className="settings-select"
-                value={newAgentModel}
-                onChange={(e) => setNewAgentModel(e.target.value)}
-              >
-                <option value="Claude 3.5 Sonnet">Claude 3.5 Sonnet</option>
-                <option value="GPT-4o">GPT-4o</option>
-                <option value="Gemini 1.5 Pro">Gemini 1.5 Pro</option>
-                <option value="Llama 3.1 70B">Llama 3.1 70B</option>
-                <option value="DeepSeek Coder">DeepSeek Coder</option>
-              </select>
+            <div className="settings-form-group" style={{ maxWidth: '400px' }}>
+              <label className="settings-label">AI Tool Link</label>
+              <input 
+                type="url"
+                className="settings-input"
+                placeholder="e.g. https://chat.openai.com"
+                value={newAgentLink}
+                onChange={(e) => {
+                  setNewAgentLink(e.target.value);
+                  setFormErrors(prev => ({ ...prev, link: false }));
+                }}
+                required
+                style={{ border: formErrors.link ? '1px solid #ff6b6b' : '1px solid #2E3320' }}
+              />
+              {formErrors.link && (
+                <span style={{
+                  color: '#ff6b6b',
+                  fontSize: '10px',
+                  fontFamily: 'Geist Mono',
+                  display: 'block',
+                  marginTop: '4px'
+                }}>
+                  This field is required
+                </span>
+              )}
             </div>
             <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
               <button type="submit" className="lime-btn">Create Agent</button>
@@ -132,32 +221,183 @@ export default function SettingsPage({
     );
   };
 
-  const renderGeneralTab = () => (
+  const renderBillingTab = () => (
     <>
       <div className="settings-header-row">
         <div>
-          <h2 className="settings-title">General Workspace Settings</h2>
-          <div className="settings-subtitle">Configure naming limits and global synchronizations.</div>
+          <h2 className="settings-title">Pick Your Plan</h2>
+          <div className="settings-subtitle">
+            Start free. Upgrade when you're ready.
+          </div>
         </div>
       </div>
-      <div className="settings-form-container" style={{ maxWidth: '500px' }}>
-        <div className="settings-dummy-field">
-          <label className="settings-label">Workspace Identifier</label>
-          <input type="text" className="settings-input" defaultValue="FounderFlow Ops Room" />
+
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: '1fr 1fr 1fr', 
+        gap: '16px',
+        marginTop: '24px'
+      }}>
+        
+        {/* FREE PLAN */}
+        <div style={{
+          background: '#12150D',
+          border: '1px solid #2E3320',
+          padding: '28px',
+          fontFamily: 'Geist Mono'
+        }}>
+          <div style={{ 
+            fontSize: '10px', color: '#6B7155', 
+            letterSpacing: '0.1em', marginBottom: '12px' 
+          }}>FREE</div>
+          <div style={{ 
+            fontSize: '28px', fontWeight: 'bold', 
+            color: '#E8EDD4', marginBottom: '4px' 
+          }}>$0</div>
+          <div style={{ 
+            fontSize: '11px', color: '#6B7155', 
+            marginBottom: '24px' 
+          }}>Always free, no card needed</div>
+          
+          <div style={{ 
+            fontSize: '11px', color: '#9AA066', 
+            lineHeight: '2', marginBottom: '24px' 
+          }}>
+            ✓ 3 AI Agents<br/>
+            ✓ 1 Active Project<br/>
+            ✓ Basic workflow<br/>
+            ✓ Community help
+          </div>
+
+          <div style={{
+            padding: '10px',
+            border: '1px solid #2E3320',
+            color: '#6B7155',
+            fontSize: '11px',
+            textAlign: 'center',
+            letterSpacing: '0.05em'
+          }}>
+            Your Current Plan
+          </div>
         </div>
-        <div className="settings-dummy-field">
-          <label className="settings-label">Operational Domain</label>
-          <input type="text" className="settings-input" defaultValue="ops.founderflow.internal" />
+
+        {/* PREMIUM PLAN */}
+        <div style={{
+          background: '#12150D',
+          border: '2px solid #C8F04A',
+          padding: '28px',
+          fontFamily: 'Geist Mono',
+          position: 'relative'
+        }}>
+          <div style={{
+            position: 'absolute',
+            top: '-1px', right: '20px',
+            background: '#C8F04A',
+            color: '#0F1109',
+            fontSize: '9px',
+            fontWeight: 'bold',
+            padding: '3px 10px',
+            letterSpacing: '0.1em'
+          }}>POPULAR</div>
+
+          <div style={{ 
+            fontSize: '10px', color: '#C8F04A', 
+            letterSpacing: '0.1em', marginBottom: '12px' 
+          }}>PREMIUM</div>
+          <div style={{ 
+            fontSize: '28px', fontWeight: 'bold', 
+            color: '#E8EDD4', marginBottom: '4px' 
+          }}>$25</div>
+          <div style={{ 
+            fontSize: '11px', color: '#6B7155', 
+            marginBottom: '24px' 
+          }}>billed monthly</div>
+          
+          <div style={{ 
+            fontSize: '11px', color: '#9AA066', 
+            lineHeight: '2', marginBottom: '24px' 
+          }}>
+            ✓ All 10 AI Agents<br/>
+            ✓ Unlimited Projects<br/>
+            ✓ Custom workflows<br/>
+            ✓ Fast support<br/>
+            ✓ Ready templates<br/>
+            ✓ Team access
+          </div>
+
+          <button style={{
+            width: '100%',
+            padding: '10px',
+            background: '#C8F04A',
+            border: 'none',
+            color: '#0F1109',
+            fontSize: '11px',
+            fontWeight: 'bold',
+            cursor: 'pointer',
+            fontFamily: 'Geist Mono',
+            letterSpacing: '0.05em'
+          }}>
+            Upgrade Now →
+          </button>
         </div>
-        <div className="settings-dummy-field">
-          <label className="settings-label">Telemetry Heartbeat Interval</label>
-          <select className="settings-select" style={{ minWidth: '100%' }}>
-            <option>Every 3 seconds</option>
-            <option>Every 10 seconds</option>
-            <option>Manual polls only</option>
-          </select>
+
+        {/* ENTERPRISE PLAN */}
+        <div style={{
+          background: '#12150D',
+          border: '1px solid #2E3320',
+          padding: '28px',
+          fontFamily: 'Geist Mono'
+        }}>
+          <div style={{ 
+            fontSize: '10px', color: '#6B7155', 
+            letterSpacing: '0.1em', marginBottom: '12px' 
+          }}>ENTERPRISE</div>
+          <div style={{ 
+            fontSize: '28px', fontWeight: 'bold', 
+            color: '#E8EDD4', marginBottom: '4px' 
+          }}>Custom</div>
+          <div style={{ 
+            fontSize: '11px', color: '#6B7155', 
+            marginBottom: '24px' 
+          }}>let's talk pricing</div>
+          
+          <div style={{ 
+            fontSize: '11px', color: '#9AA066', 
+            lineHeight: '2', marginBottom: '24px' 
+          }}>
+            ✓ Everything in Premium<br/>
+            ✓ Your own support team<br/>
+            ✓ We build what you need<br/>
+            ✓ Uptime guaranteed<br/>
+            ✓ Host it yourself<br/>
+            ✓ We train your team
+          </div>
+
+          <button 
+            onClick={() => window.open('mailto:hello@founderflow.ai', '_blank')}
+            style={{
+              width: '100%',
+              padding: '10px',
+              background: 'transparent',
+              border: '1px solid #2E3320',
+              color: '#E8EDD4',
+              fontSize: '11px',
+              cursor: 'pointer',
+              fontFamily: 'Geist Mono',
+              letterSpacing: '0.05em'
+            }}
+            onMouseEnter={e => {
+              e.target.style.borderColor = '#C8F04A'
+              e.target.style.color = '#C8F04A'
+            }}
+            onMouseLeave={e => {
+              e.target.style.borderColor = '#2E3320'
+              e.target.style.color = '#E8EDD4'
+            }}
+          >
+            Talk to Us →
+          </button>
         </div>
-        <button className="outline-btn" style={{ width: 'fit-content', marginTop: '8px' }}>Save Changes</button>
       </div>
     </>
   );
@@ -166,119 +406,29 @@ export default function SettingsPage({
     <>
       <div className="settings-header-row">
         <div>
-          <h2 className="settings-title">Project Registry</h2>
-          <div className="settings-subtitle">Manage namespaces and directories for active code structures.</div>
+          <h2 className="settings-title">Your Projects</h2>
+          <div className="settings-subtitle">All your active projects in one place.</div>
         </div>
       </div>
       <div className="settings-card-list">
-        {Object.keys(projects).map((proj) => (
-          <div key={proj} className="settings-card">
+        {Object.values(projects).map((project) => (
+          <div key={project.id} className="settings-card">
             <div className="settings-agent-details">
-              <span className="settings-agent-name">{proj}</span>
-              <span className="settings-agent-role">Stack: {projects[proj].stack}</span>
+              <span className="settings-agent-name">
+                {project.name || project.id}
+              </span>
+              <span className="settings-agent-role">
+                {project.status || 'ACTIVE'} · Created by you
+              </span>
             </div>
-            <button className="outline-btn">Settings</button>
+            <button 
+              className="outline-btn"
+              onClick={() => navigate(`/projects/${project.id}`)}
+            >
+              Open →
+            </button>
           </div>
         ))}
-      </div>
-    </>
-  );
-
-  const renderKeysTab = () => (
-    <>
-      <div className="settings-header-row">
-        <div>
-          <h2 className="settings-title">API Authentication Keys</h2>
-          <div className="settings-subtitle">Configure service tokens to query Anthropic, OpenAI, and Google models.</div>
-        </div>
-      </div>
-      <div className="settings-card-list">
-        <div className="settings-card">
-          <div className="settings-agent-details">
-            <span className="settings-agent-name">Anthropic API Provider</span>
-            <span className="settings-agent-role" style={{ fontFamily: 'monospace' }}>sk-ant-•••••••••••••••••</span>
-          </div>
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <button className="outline-btn">Reveal</button>
-            <button className="outline-btn">Revoke</button>
-          </div>
-        </div>
-        <div className="settings-card">
-          <div className="settings-agent-details">
-            <span className="settings-agent-name">OpenAI API Provider</span>
-            <span className="settings-agent-role" style={{ fontFamily: 'monospace' }}>sk-proj-•••••••••••••••••</span>
-          </div>
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <button className="outline-btn">Reveal</button>
-            <button className="outline-btn">Revoke</button>
-          </div>
-        </div>
-        <div className="settings-card">
-          <div className="settings-agent-details">
-            <span className="settings-agent-name">Google Gemini Provider</span>
-            <span className="settings-agent-role" style={{ fontFamily: 'monospace' }}>AIzaSy•••••••••••••••••</span>
-          </div>
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <button className="outline-btn">Reveal</button>
-            <button className="outline-btn">Revoke</button>
-          </div>
-        </div>
-      </div>
-    </>
-  );
-
-  const renderAppearanceTab = () => (
-    <>
-      <div className="settings-header-row">
-        <div>
-          <h2 className="settings-title">Appearance Settings</h2>
-          <div className="settings-subtitle">Personalize layout parameters and theme settings.</div>
-        </div>
-      </div>
-      <div className="settings-form-container" style={{ maxWidth: '500px' }}>
-        <div className="settings-dummy-field">
-          <label className="settings-label">Theme Mode</label>
-          <select className="settings-select" style={{ minWidth: '100%' }}>
-            <option>Matte Olive (Military Ops)</option>
-            <option>Desaturated Slate (Carbon)</option>
-            <option>Monochrome Paper (Notion Light)</option>
-          </select>
-        </div>
-        <div className="settings-dummy-field">
-          <label className="settings-label">Border Details</label>
-          <select className="settings-select" style={{ minWidth: '100%' }}>
-            <option>1px Solid dividers (Strict)</option>
-            <option>Dashed boundaries (Blueprint)</option>
-            <option>No visible lines (Flat)</option>
-          </select>
-        </div>
-      </div>
-    </>
-  );
-
-  const renderBillingTab = () => (
-    <>
-      <div className="settings-header-row">
-        <div>
-          <h2 className="settings-title">Operations Billing</h2>
-          <div className="settings-subtitle">Review token usage allowances and historical billing logs.</div>
-        </div>
-      </div>
-      <div className="settings-card-list">
-        <div className="settings-card billing-row">
-          <div>
-            <div className="settings-label">Current Tier</div>
-            <div style={{ fontWeight: 'bold', fontSize: '14px', marginTop: '4px' }}>Military Pro</div>
-          </div>
-          <div>
-            <div className="settings-label">Monthly Cost</div>
-            <div style={{ fontWeight: 'bold', fontSize: '14px', marginTop: '4px' }}>$49.00 / month</div>
-          </div>
-          <div>
-            <div className="settings-label">Renewal Date</div>
-            <div style={{ fontWeight: 'bold', fontSize: '14px', marginTop: '4px' }}>July 28, 2026</div>
-          </div>
-        </div>
       </div>
     </>
   );
@@ -299,13 +449,6 @@ export default function SettingsPage({
           {/* Left Settings Tabs */}
           <aside className="settings-nav">
             <button 
-              className={`settings-nav-btn ${activeSettingsTab === 'general' ? 'active' : ''}`}
-              onClick={() => setActiveSettingsTab('general')}
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>settings_accessibility</span>
-              General
-            </button>
-            <button 
               className={`settings-nav-btn ${activeSettingsTab === 'agents' ? 'active' : ''}`}
               onClick={() => setActiveSettingsTab('agents')}
             >
@@ -320,20 +463,6 @@ export default function SettingsPage({
               Projects
             </button>
             <button 
-              className={`settings-nav-btn ${activeSettingsTab === 'keys' ? 'active' : ''}`}
-              onClick={() => setActiveSettingsTab('keys')}
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>key</span>
-              API Keys
-            </button>
-            <button 
-              className={`settings-nav-btn ${activeSettingsTab === 'appearance' ? 'active' : ''}`}
-              onClick={() => setActiveSettingsTab('appearance')}
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>palette</span>
-              Appearance
-            </button>
-            <button 
               className={`settings-nav-btn ${activeSettingsTab === 'billing' ? 'active' : ''}`}
               onClick={() => setActiveSettingsTab('billing')}
             >
@@ -345,10 +474,7 @@ export default function SettingsPage({
           {/* Right Tab Content */}
           <section className="settings-content">
             {activeSettingsTab === 'agents' && renderAgentsTab()}
-            {activeSettingsTab === 'general' && renderGeneralTab()}
             {activeSettingsTab === 'projects' && renderProjectsTab()}
-            {activeSettingsTab === 'keys' && renderKeysTab()}
-            {activeSettingsTab === 'appearance' && renderAppearanceTab()}
             {activeSettingsTab === 'billing' && renderBillingTab()}
           </section>
         </div>

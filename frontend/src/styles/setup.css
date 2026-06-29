@@ -1070,7 +1070,281 @@
   display: none !important;
 }
 
+/* Customize Workflow Bottom Sheet */
+.customize-workflow-sheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 70vh;
+  background: #0A0D07;
+  border-top: 2px solid #C8F04A;
+  z-index: 200;
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 32px 40px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.8);
+}
 
+.customize-workflow-sheet.open {
+  transform: translateY(0);
+}
 
+/* Sheet Header */
+.customize-workflow-sheet .sheet-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+  border-bottom: 1px solid #1E2118;
+  padding-bottom: 16px;
+}
 
+.customize-workflow-sheet .sheet-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: left;
+}
 
+.customize-workflow-sheet .sheet-label {
+  font-family: 'Geist Mono', monospace;
+  font-size: 14px;
+  font-weight: 800;
+  color: #C8F04A;
+  letter-spacing: 0.1em;
+}
+
+.customize-workflow-sheet .sheet-subtext {
+  font-size: 11px;
+  color: #8C9275;
+}
+
+.customize-workflow-sheet .sheet-close-btn {
+  background: transparent;
+  border: none;
+  color: #6B7155;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  transition: color 0.2s ease;
+}
+
+.customize-workflow-sheet .sheet-close-btn:hover {
+  color: #E8EDD4;
+}
+
+/* Sheet Content */
+.customize-workflow-sheet .sheet-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow-y: auto;
+  padding-bottom: 24px;
+}
+
+/* Sheet Agent Row */
+.customize-workflow-sheet .sheet-agent-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #1E2118;
+  padding-bottom: 16px;
+}
+
+.customize-workflow-sheet .sheet-agent-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 200px;
+  text-align: left;
+}
+
+.customize-workflow-sheet .sheet-agent-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid #2E3320;
+  background: #12150D;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  font-weight: 800;
+  color: #9AA066;
+}
+
+.customize-workflow-sheet .sheet-agent-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #E8EDD4;
+}
+
+.customize-workflow-sheet .sheet-agent-tasks-section {
+  flex: 1;
+}
+
+.customize-workflow-sheet .sheet-tasks-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Task Pill */
+.customize-workflow-sheet .sheet-task-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #12150D;
+  border: 1px solid #2E3320;
+  color: #E8EDD4;
+  font-size: 10px;
+  padding: 6px 12px;
+  border-radius: 100px;
+  transition: all 0.2s ease;
+}
+
+.customize-workflow-sheet .sheet-task-pill:hover {
+  border-color: #C8F04A;
+}
+
+.customize-workflow-sheet .sheet-remove-task-btn {
+  background: transparent;
+  border: none;
+  color: #8C9275;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.customize-workflow-sheet .sheet-remove-task-btn:hover {
+  color: #FF5A5A;
+}
+
+/* Inline Input */
+.customize-workflow-sheet .sheet-inline-task-input {
+  background: #12150D;
+  border: 1px solid #C8F04A;
+  color: #E8EDD4;
+  font-size: 10px;
+  padding: 6px 12px;
+  border-radius: 100px;
+  outline: none;
+  width: 140px;
+}
+
+/* Add Task Pill Button */
+.customize-workflow-sheet .sheet-add-task-pill-btn {
+  background: transparent;
+  border: 1px dashed #4E5438;
+  color: #9AA066;
+  font-size: 10px;
+  padding: 6px 12px;
+  border-radius: 100px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.customize-workflow-sheet .sheet-add-task-pill-btn:hover {
+  border-color: #C8F04A;
+  color: #C8F04A;
+  background: rgba(200, 240, 74, 0.05);
+}
+
+/* Sticky Footer */
+.customize-workflow-sheet .sheet-footer {
+  position: relative;
+  background: #0A0D07;
+  border-top: 1px solid #1E2118;
+  padding: 20px 0 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.customize-workflow-sheet .sheet-reset-btn {
+  background: transparent;
+  border: none;
+  color: #6B7155;
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.customize-workflow-sheet .sheet-reset-btn:hover {
+  color: #FF5A5A;
+}
+
+.customize-workflow-sheet .sheet-save-btn {
+  background: #C8F04A;
+  border: none;
+  color: #0F1109;
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 12px 28px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.customize-workflow-sheet .sheet-save-btn:hover {
+  opacity: 0.9;
+}
+
+/* Customize Workflow Button style */
+.reactflow-customize-btn-new {
+  background: transparent;
+  border: 1px solid #C8F04A;
+  color: #C8F04A;
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 12px 20px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.reactflow-customize-btn-new:hover {
+  background: rgba(200, 240, 74, 0.1);
+}
+
+/* Agent Node More Badge */
+.reactflow-agent-more-badge {
+  background: #C8F04A;
+  color: #0F1109;
+  font-size: 8px;
+  font-weight: 850;
+  padding: 1px 4px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  letter-spacing: 0.05em;
+  margin-left: 2px;
+}
+
+/* Drag and Drop highlights */
+.customize-workflow-sheet .sheet-task-pill.dragging {
+  opacity: 0.5;
+  border-color: #C8F04A !important;
+  box-shadow: 0 0 10px rgba(200, 240, 74, 0.3);
+}
+
+.customize-workflow-sheet .sheet-agent-row.drag-over {
+  background: rgba(200, 240, 74, 0.05) !important;
+  border: 1px dashed #C8F04A !important;
+  border-radius: 4px;
+}

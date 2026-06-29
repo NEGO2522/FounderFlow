@@ -117,7 +117,7 @@ export default function LandingPage({ setGuestMode }) {
             {/* Row 1: Badge */}
             <div className="hero-badge-inline">
               <span className="blinking-dot-inline">●</span>
-              AI-POWERED CO-FOUNDER STACK
+              YOUR AI STARTUP TEAM
             </div>
 
             {/* Row 2: Headline */}
@@ -129,7 +129,7 @@ export default function LandingPage({ setGuestMode }) {
 
             {/* Row 3: Subtext */}
             <p className="hero-subtext">
-              10 specialized AI agents working in parallel — code, growth, research, security, design and more. Built for solo founders who move fast.
+              10 AI tools working together on your idea. Code, marketing, research and more. Built for solo builders.
             </p>
 
             {/* Row 4: CTA buttons */}
@@ -171,37 +171,37 @@ export default function LandingPage({ setGuestMode }) {
       {/* Overhauled Clean Features Section with id="features" */}
       <section id="features" className="landing-features">
         <div className="features-header">
-          <span className="section-label">WHY FOUNDERFLOW</span>
+          <span className="section-label">WHY USE FOUNDERFLOW</span>
           <h2 className="features-headline">
-            Everything a founding team does.<br />One dashboard.
+            Everything you need to build.<br />One place.
           </h2>
           <p className="features-subtext">
-            No hiring. No meetings. Just execution.
+            No team needed. Just you and your AI.
           </p>
         </div>
 
         <div className="features-grid-overhaul">
           <div className="feature-column-clean">
             <span className="feature-num">01</span>
-            <h3 className="feature-title-clean">Specialized Agents</h3>
+            <h3 className="feature-title-clean">Each AI has one job</h3>
             <p className="feature-desc-clean">
-              Each AI has one focused role. No generalist confusion.
+              No confusion. Every AI focuses on what it does best.
             </p>
           </div>
 
           <div className="feature-column-clean">
             <span className="feature-num">02</span>
-            <h3 className="feature-title-clean">Project Workspaces</h3>
+            <h3 className="feature-title-clean">One place per project</h3>
             <p className="feature-desc-clean">
-              Separate context per product. Full history and sprint tracking.
+              Keep everything organized. Full history, tasks, and progress.
             </p>
           </div>
 
           <div className="feature-column-clean">
             <span className="feature-num">03</span>
-            <h3 className="feature-title-clean">Parallel Execution</h3>
+            <h3 className="feature-title-clean">All AIs work at the same time</h3>
             <p className="feature-desc-clean">
-              All 10 agents work simultaneously. Ship in days, not months.
+              Ship faster. All 10 AIs work on your product together.
             </p>
           </div>
         </div>
@@ -210,9 +210,9 @@ export default function LandingPage({ setGuestMode }) {
       {/* YOUR CO-FOUNDERS Section with id="agents" */}
       <section id="agents" className="landing-agents-grid-overhaul">
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-          <span className="section-label">YOUR CO-FOUNDERS</span>
+          <span className="section-label">YOUR AI TEAM</span>
           <h2 style={{ fontSize: '20px', fontWeight: '800', margin: '8px 0 0 0', textTransform: 'uppercase', color: '#FFF' }}>
-            Real AI tools. Assigned roles. Actual output.
+            Real tools. Real roles. Real results.
           </h2>
         </div>
 
@@ -241,10 +241,10 @@ export default function LandingPage({ setGuestMode }) {
       {/* FINAL CTA Section with id="pricing" */}
       <section id="pricing" className="landing-final-cta">
         <h2 style={{ fontSize: '24px', fontWeight: '800', margin: 0, textTransform: 'uppercase', color: '#FFF' }}>
-          Ready to build with your AI team?
+          Ready to start building?
         </h2>
         <p style={{ fontSize: '13px', color: 'var(--text-muted-olive)', margin: 0 }}>
-          No credit card. No setup. Just ship.
+          Free to start. No card needed.
         </p>
         <button className="hero-btn-filled" style={{ padding: '16px 36px', fontSize: '13px', marginTop: '8px' }} onClick={() => navigate('/signup')}>
           Start Free →
@@ -259,7 +259,7 @@ export default function LandingPage({ setGuestMode }) {
           </span>
         </div>
         <div>
-          Built for solo founders · 2026
+          Made for solo builders · 2026
         </div>
         <div style={{ display: 'flex', gap: '16px' }}>
           <span className="footer-nav-link" onClick={() => navigate('/login')}>Login</span>

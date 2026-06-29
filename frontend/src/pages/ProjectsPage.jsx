@@ -23,10 +23,10 @@ export default function ProjectsPage({ agents, activeAgentId, setActiveAgentId, 
           <div style={{ height: '70px', borderBottom: '1px solid var(--border-card)', padding: '0 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'var(--bg-deep)' }}>
             <div>
               <span style={{ fontSize: '9px', color: '#a4aa8e', fontWeight: '800', letterSpacing: '0.1em' }}>
-                OPERATIONS
+                PROJECTS
               </span>
               <h1 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-warm)', margin: '4px 0 0 0' }}>
-                Active Projects
+                Your Projects
               </h1>
             </div>
             <button className="lime-btn" style={{ borderRadius: '0px' }}>
@@ -68,7 +68,7 @@ export default function ProjectsPage({ agents, activeAgentId, setActiveAgentId, 
                   {/* Assigned Agents */}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                     <span style={{ fontSize: '9px', color: '#a4aa8e', fontWeight: '800', letterSpacing: '0.05em' }}>
-                      ASSIGNED CO-FOUNDERS
+                      AI TEAM ON THIS
                     </span>
                     <div className="project-agents-row">
                       {project.agents.map((agentId) => {
@@ -84,7 +84,7 @@ export default function ProjectsPage({ agents, activeAgentId, setActiveAgentId, 
                   </div>
 
                   <div className="project-card-link">
-                    <span>Open Project</span>
+                    <span>Open</span>
                     <span className="material-symbols-outlined" style={{ fontSize: '12px' }}>arrow_forward</span>
                   </div>
                 </div>

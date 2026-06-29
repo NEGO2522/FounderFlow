@@ -46,7 +46,7 @@ export default function SignUpPage() {
     });
     
     if (error) {
-      setError(error.message);
+      setError(typeof error === 'string' ? error : error?.message || JSON.stringify(error));
     } else {
       setSuccess('Check your email to confirm your account.');
     }
@@ -61,7 +61,7 @@ export default function SignUpPage() {
         redirectTo: window.location.origin + '/dashboard'
       }
     });
-    if (error) setError(error.message);
+    if (error) setError(typeof error === 'string' ? error : error?.message || JSON.stringify(error));
   };
 
   return (
@@ -172,7 +172,7 @@ export default function SignUpPage() {
               border: '1px solid rgba(255,107,107,0.3)',
               background: 'rgba(255,107,107,0.05)'
             }}>
-              {error}
+              {typeof error === 'string' ? error : JSON.stringify(error)}
             </div>
           )}
 

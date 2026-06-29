@@ -14,7 +14,7 @@ export default function Sidebar({ agents, activeAgentId, setActiveAgentId }) {
     setActiveAgentId(agentId);
   };
 
-  const handleLogoutClick = async () => {
+  const handleLogout = async () => {
     await supabase.auth.signOut();
     window.dispatchEvent(new Event("ff_guest_logout"));
     navigate('/');
@@ -76,15 +76,20 @@ export default function Sidebar({ agents, activeAgentId, setActiveAgentId }) {
           </button>
         )}
 
-        <button 
-          className="minimal-project-btn" 
-          onClick={handleLogoutClick}
-          style={{ borderColor: '#3d432b' }}
-        >
-          <span>LOG OUT</span>
-          <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>
-            logout
-          </span>
+        <button onClick={handleLogout} style={{
+          width: '100%',
+          padding: '10px 16px',
+          background: 'transparent',
+          border: '1px solid #2E3320',
+          color: '#6B7155',
+          fontFamily: 'Geist Mono',
+          fontSize: '10px',
+          letterSpacing: '0.1em',
+          cursor: 'pointer',
+          textAlign: 'left',
+          marginTop: '8px'
+        }}>
+          ⎋ LOGOUT
         </button>
       </div>
     </aside>

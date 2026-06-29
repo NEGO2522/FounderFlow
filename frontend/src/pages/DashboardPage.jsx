@@ -106,6 +106,7 @@ export default function DashboardPage({
                 placeholder={`Message ${activeAgent?.name}...`} 
                 value={userInput}
                 onChange={(e) => setUserInput(e.target.value)}
+                autoFocus={false}
               />
             </div>
             <button type="submit" className="send-button">

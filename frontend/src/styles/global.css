@@ -66,3 +66,22 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--accent-lime);
 }
+
+/* ReactFlow Global Overrides */
+.react-flow__node {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+.react-flow__node.selected {
+  box-shadow: none !important;
+  outline: none !important;
+}
+.react-flow__node:focus {
+  outline: none !important;
+}
+.react-flow__selection {
+  border: 1px dashed #C8F04A !important;
+  background: rgba(200, 240, 74, 0.02) !important;
+}
+

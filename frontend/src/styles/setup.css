@@ -1,0 +1,1076 @@
+.setup-container {
+  min-height: 100vh;
+  background-color: #0F1109;
+  color: #E8EDD4;
+  font-family: 'Geist Mono', monospace;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  padding: 0;
+}
+
+.noise-overlay {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(200, 240, 74, 0.03) 1px, transparent 1px);
+  background-size: 24px 24px;
+  pointer-events: none;
+}
+
+/* Step 1: Idea Input */
+.setup-card {
+  width: 100%;
+  max-width: 640px;
+  background: #12150D;
+  border: 1px solid #2E3320;
+  border-radius: 12px;
+  padding: 40px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  position: relative;
+  z-index: 10;
+}
+
+.setup-logo {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: #E8EDD4;
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.setup-logo span {
+  color: #C8F04A;
+}
+
+.setup-badge {
+  font-size: 10px;
+  color: #C8F04A;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.setup-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #E8EDD4;
+  margin-bottom: 8px;
+  letter-spacing: -0.02em;
+}
+
+.setup-subtext {
+  font-size: 12px;
+  color: #6B7155;
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+.setup-textarea {
+  width: 100%;
+  height: 180px;
+  background: #12150D;
+  border: 1px solid #2E3320;
+  border-radius: 8px;
+  padding: 16px;
+  font-family: 'Geist Mono', monospace;
+  font-size: 13px;
+  color: #E8EDD4;
+  resize: none;
+  margin-bottom: 8px;
+  transition: border-color 0.2s ease;
+}
+
+.setup-textarea:focus {
+  outline: none;
+  border-color: #C8F04A;
+}
+
+.setup-char-count {
+  text-align: right;
+  font-size: 11px;
+  color: #6B7155;
+  margin-bottom: 24px;
+}
+
+.setup-btn {
+  width: 100%;
+  padding: 14px;
+  background: #C8F04A;
+  color: #0F1109;
+  border: none;
+  border-radius: 6px;
+  font-family: 'Geist Mono', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.setup-btn:disabled {
+  background: #1E2118;
+  color: #6B7155;
+  cursor: not-allowed;
+  border: 1px solid #2E3320;
+}
+
+/* Step 2: Loading */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.loading-text {
+  font-size: 13px;
+  color: #C8F04A;
+  margin-bottom: 16px;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+}
+
+.loading-cursor {
+  animation: blink-cursor 1s step-end infinite;
+}
+
+@keyframes blink-cursor {
+  from, to { color: transparent }
+  50% { color: #C8F04A }
+}
+
+.loading-progress-bg {
+  width: 300px;
+  height: 2px;
+  background: #1E2118;
+  border-radius: 1px;
+  overflow: hidden;
+}
+
+.loading-progress-fill {
+  height: 100%;
+  background: #C8F04A;
+  width: 0%;
+}
+
+/* Step 3: Workflow Visualization */
+.workflow-layout {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #0F1109;
+  position: relative;
+  overflow: hidden;
+}
+
+.workflow-topbar {
+  height: 60px;
+  border-bottom: 1px solid #1E2118;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  background: #0F1109;
+  z-index: 100;
+}
+
+.workflow-back-btn {
+  background: transparent;
+  border: none;
+  color: #6B7155;
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.workflow-back-btn:hover {
+  color: #C8F04A;
+}
+
+.workflow-topbar-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #E8EDD4;
+  letter-spacing: 0.1em;
+}
+
+.workflow-topbar-action {
+  padding: 8px 16px;
+  background: #C8F04A;
+  color: #0F1109;
+  border: none;
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.workflow-main {
+  flex: 1;
+  position: relative;
+  overflow: auto;
+  padding: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 160px; /* space for actions/drawer */
+}
+
+/* SVG Connection Lines Layer */
+.workflow-svg-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.workflow-connection-line {
+  stroke: #1E2118;
+  stroke-width: 1.5;
+  fill: none;
+  transition: stroke 0.2s ease, stroke-width 0.2s ease;
+}
+
+.workflow-connection-line.active {
+  stroke: #C8F04A;
+  stroke-width: 2;
+}
+
+/* Graph Nodes layout alignment */
+.workflow-graph-container {
+  display: flex;
+  align-items: center;
+  gap: 120px;
+  position: relative;
+  z-index: 10;
+}
+
+.node-circle {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  border: 1px solid #C8F04A;
+  background: #12150D;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 12px;
+  box-shadow: 0 0 20px rgba(200, 240, 74, 0.05);
+}
+
+.node-circle-title {
+  font-size: 10px;
+  color: #C8F04A;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+.node-circle-desc {
+  font-size: 9px;
+  color: #6B7155;
+  line-height: 1.3;
+  word-break: break-word;
+}
+
+/* AI Agents Grid (2 columns x 5 rows) */
+.agents-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 220px);
+  gap: 16px 40px;
+}
+
+.agent-node-card {
+  background: #12150D;
+  border: 1px solid #1E2118;
+  border-radius: 6px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 220px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.agent-node-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: #C8F04A;
+  border-top-left-radius: 6px;
+  border-bottom-left-radius: 6px;
+}
+
+.agent-node-card:hover {
+  border-color: #C8F04A;
+  transform: translateY(-1px);
+}
+
+.agent-node-card.active-node {
+  border-color: #C8F04A;
+  box-shadow: 0 0 12px rgba(200, 240, 74, 0.15);
+}
+
+.agent-node-avatar {
+  width: 28px;
+  height: 28px;
+  background: #1E2118;
+  border: 1px solid #2E3320;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: #C8F04A;
+}
+
+.agent-node-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.agent-node-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: #E8EDD4;
+}
+
+.agent-node-role {
+  font-size: 9px;
+  color: #6B7155;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Customize drawer panel */
+.customize-panel {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  background: #12150D;
+  border-top: 1px solid #1E2118;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  z-index: 200;
+  transform: translateY(100%);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.customize-panel.open {
+  transform: translateY(0);
+}
+
+.customize-label {
+  font-size: 11px;
+  color: #6B7155;
+  min-width: 140px;
+}
+
+.customize-label span {
+  color: #C8F04A;
+}
+
+.customize-input-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+  max-width: 600px;
+  margin: 0 40px;
+}
+
+.customize-input {
+  flex: 1;
+  background: #0F1109;
+  border: 1px solid #1E2118;
+  border-radius: 4px;
+  padding: 8px 12px;
+  color: #E8EDD4;
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  transition: border-color 0.2s ease;
+}
+
+.customize-input:focus {
+  outline: none;
+  border-color: #C8F04A;
+}
+
+.customize-add-btn {
+  background: transparent;
+  border: none;
+  color: #C8F04A;
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.customize-done-btn {
+  padding: 8px 20px;
+  background: #1E2118;
+  color: #E8EDD4;
+  border: 1px solid #2E3320;
+  border-radius: 4px;
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.customize-done-btn:hover {
+  border-color: #C8F04A;
+  color: #C8F04A;
+}
+
+/* Fixed Bottom actions bar */
+.workflow-action-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  background: #0F1109;
+  border-top: 1px solid #1E2118;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  z-index: 90;
+}
+
+.workflow-reset-btn {
+  background: transparent;
+  border: none;
+  color: #6B7155;
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.workflow-reset-btn:hover {
+  color: #E8EDD4;
+}
+
+.workflow-launch-btn {
+  padding: 10px 24px;
+  background: #C8F04A;
+  color: #0F1109;
+  border: none;
+  font-family: 'Geist Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: opacity 0.2s ease;
+}
+
+.workflow-launch-btn:hover {
+  opacity: 0.9;
+}
+
+/* Step 1 Two Column Redesign */
+.setup-split-layout {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  z-index: 10;
+}
+
+.setup-left-col {
+  width: 60%;
+  height: 100%;
+  background: #0F1109;
+  padding: 60px 40px 60px 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+}
+
+.setup-right-col {
+  width: 40%;
+  height: 100%;
+  background: #0A0D07;
+  border-left: 1px solid #1E2118;
+  padding: 60px 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.setup-logo-row {
+  display: flex;
+  flex-direction: column;
+}
+
+.setup-logo-small {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: #E8EDD4;
+}
+
+.setup-logo-small span {
+  color: #C8F04A;
+}
+
+.setup-logo-divider {
+  width: 40px;
+  height: 1px;
+  background: #C8F04A;
+  margin: 20px 0;
+}
+
+.setup-left-middle {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: 600px;
+  margin-top: -40px; /* pull slightly up */
+}
+
+.setup-input-badge {
+  font-size: 11px;
+  color: #C8F04A;
+  letter-spacing: 0.15em;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
+
+.setup-input-title {
+  font-size: 48px;
+  font-weight: 700;
+  color: #E8EDD4;
+  line-height: 1.1;
+  margin-bottom: 16px;
+}
+
+.setup-input-subtext {
+  font-size: 14px;
+  color: #6B7155;
+  line-height: 1.6;
+  max-width: 400px;
+}
+
+.setup-textarea-redesign {
+  margin-top: 32px;
+  width: 100%;
+  height: 220px;
+  background: #12150D;
+  border: 1px solid #2E3320;
+  border-left: 3px solid #C8F04A;
+  border-radius: 0;
+  padding: 20px;
+  font-family: 'Geist Mono', monospace;
+  font-size: 13px;
+  color: #E8EDD4;
+  resize: none;
+  transition: border-color 0.2s ease;
+}
+
+.setup-textarea-redesign:focus {
+  outline: none;
+  border-color: #C8F04A;
+}
+
+.setup-input-action-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 16px;
+}
+
+.setup-char-count-muted {
+  font-size: 12px;
+  color: #6B7155;
+}
+
+.setup-btn-lime {
+  padding: 12px 24px;
+  background: #C8F04A;
+  color: #0F1109;
+  border: none;
+  font-family: 'Geist Mono', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.setup-btn-lime:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.setup-btn-lime:disabled {
+  background: #1E2118;
+  color: #6B7155;
+  cursor: not-allowed;
+  border: 1px solid #2E3320;
+}
+
+.setup-hints-row {
+  display: flex;
+  gap: 12px;
+  margin-top: auto;
+}
+
+.setup-hint-tag {
+  font-size: 10px;
+  color: #6B7155;
+  border: 1px solid #2E3320;
+  border-radius: 20px;
+  padding: 6px 12px;
+  background: transparent;
+}
+
+/* Right Column Steps styling */
+.setup-right-title {
+  font-size: 10px;
+  color: #C8F04A;
+  letter-spacing: 0.15em;
+  margin-bottom: 24px;
+  text-transform: uppercase;
+}
+
+.setup-steps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  margin-top: 24px;
+  flex: 1;
+}
+
+.setup-step-card {
+  display: flex;
+  gap: 20px;
+}
+
+.setup-step-num {
+  font-size: 32px;
+  font-weight: 800;
+  color: #C8F04A;
+  opacity: 0.3;
+  line-height: 1;
+}
+
+.setup-step-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.setup-step-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #E8EDD4;
+}
+
+.setup-step-desc {
+  font-size: 12px;
+  color: #6B7155;
+  line-height: 1.6;
+}
+
+.setup-right-bottom {
+  margin-top: auto;
+}
+
+.setup-bottom-divider {
+  height: 1px;
+  background: #1E2118;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.setup-right-bottom-label {
+  font-size: 11px;
+  color: #6B7155;
+  margin-bottom: 12px;
+}
+
+.setup-right-bottom-initials {
+  font-size: 11px;
+  color: #6B7155;
+  letter-spacing: 0.05em;
+}
+
+/* Step 3: Workflow Redesign (ReactFlow approach) */
+.workflow-layout-overhaul {
+  width: 100vw;
+  height: 100vh;
+  background-color: #0F1109;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Onboarding Header bar */
+.workflow-header-bar {
+  height: 60px;
+  border-bottom: 1px solid #1E2118;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  background: #0F1109;
+  z-index: 100;
+}
+
+.workflow-header-logo {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: #E8EDD4;
+}
+
+.workflow-header-logo span {
+  color: #C8F04A;
+}
+
+.workflow-header-center {
+  font-size: 11px;
+  font-weight: 700;
+  color: #C8F04A;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.workflow-header-right {
+  font-size: 10px;
+  color: #6B7155;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+}
+
+/* ReactFlow canvas wrapper container */
+.reactflow-wrapper-fullscreen {
+  flex: 1;
+  width: 100%;
+  height: calc(100vh - 120px); /* leaving room for top and bottom bar */
+  position: relative;
+  z-index: 10;
+}
+
+/* Custom Nodes Styles */
+.reactflow-idea-node {
+  width: 90px;
+  height: 130px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.reactflow-idea-node-circle {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  border: 2px solid #C8F04A;
+  background: #0F1109;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 20px rgba(200, 240, 74, 0.2);
+}
+
+.reactflow-idea-node-title {
+  font-size: 9px;
+  font-weight: 700;
+  color: #C8F04A;
+  letter-spacing: 0.05em;
+}
+
+.reactflow-idea-node-preview {
+  font-size: 9px;
+  color: #6B7155;
+  margin-top: 8px;
+  text-align: center;
+  max-width: 90px;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.reactflow-agent-node {
+  width: 170px;
+  height: 60px;
+  background: #12150D;
+  border: 1px solid #2E3320;
+  border-left: 3px solid #C8F04A;
+  border-radius: 4px;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: grab;
+  transition: border-color 0.2s ease;
+}
+
+.reactflow-agent-node:active {
+  cursor: grabbing;
+}
+
+/* Select state highlighted border */
+.react-flow__node.selected .reactflow-agent-node {
+  border-color: #C8F04A !important;
+}
+
+.reactflow-agent-avatar {
+  width: 28px;
+  height: 28px;
+  border: 1px solid #2E3320;
+  border-radius: 50%;
+  background: #0F1109;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: #9AA066;
+}
+
+.reactflow-agent-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.reactflow-agent-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: #E8EDD4;
+}
+
+.reactflow-agent-role {
+  font-size: 10px;
+  color: #6B7155;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  user-select: none;
+}
+
+.reactflow-agent-role-input {
+  background: #0F1109;
+  border: 1px solid #C8F04A;
+  color: #E8EDD4;
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  padding: 2px 4px;
+  width: 100%;
+  outline: none;
+}
+
+.reactflow-launch-node {
+  width: 90px;
+  height: 130px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.reactflow-launch-node-circle {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  border: 2px solid #C8F04A;
+  background: #0F1109;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 20px rgba(200, 240, 74, 0.2);
+}
+
+.reactflow-launch-node-title {
+  font-size: 9px;
+  font-weight: 700;
+  color: #C8F04A;
+  letter-spacing: 0.05em;
+}
+
+.reactflow-launch-node-desc {
+  font-size: 9px;
+  color: #6B7155;
+  margin-top: 8px;
+  text-align: center;
+}
+
+/* Staggered entrance animations */
+.reactflow-idea-node,
+.reactflow-idea-node-rect,
+.reactflow-agent-node,
+.reactflow-launch-node {
+  animation: nodeAppear 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+}
+
+@keyframes nodeAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Custom Rectangle Idea Node styled clean */
+
+/* Animated edge paths custom rules */
+.reactflow-layout-overhaul .react-flow__edge-path.animated {
+  stroke-dasharray: 6;
+  animation: flowAnimation 1.5s linear infinite;
+  stroke: #C8F04A !important;
+}
+
+@keyframes flowAnimation {
+  from {
+    stroke-dashoffset: 24;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.reactflow-layout-overhaul .react-flow__edge:hover .react-flow__edge-path {
+  stroke: #C8F04A !important;
+  stroke-width: 2.5px !important;
+}
+
+/* Delay edge load so nodes appear first */
+.reactflow-layout-overhaul .react-flow__edges {
+  animation: edgesFadeIn 0.3s ease forwards;
+  animation-delay: 1.3s;
+  opacity: 0;
+}
+
+@keyframes edgesFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Bottom Bar Redesign */
+.reactflow-bottom-bar-fixed {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  background-color: #0A0D07;
+  border-top: 1px solid #1E2118;
+  padding: 16px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 100;
+}
+
+.reactflow-bottom-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.reactflow-bottom-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #C8F04A;
+  letter-spacing: 0.1em;
+}
+
+.reactflow-bottom-desc {
+  font-size: 11px;
+  color: #6B7155;
+}
+
+.reactflow-bottom-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.reactflow-reset-btn-outline {
+  padding: 10px 20px;
+  background: transparent;
+  border: 1px solid #2E3320;
+  color: #6B7155;
+  font-family: 'Geist Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.reactflow-reset-btn-outline:hover {
+  border-color: #6B7155;
+  color: #E8EDD4;
+}
+
+.reactflow-launch-btn-filled-new {
+  padding: 10px 24px;
+  background: #C8F04A;
+  color: #0F1109;
+  border: none;
+  font-family: 'Geist Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  border-radius: 4px;
+  box-shadow: 0 4px 20px rgba(200, 240, 74, 0.15);
+  transition: opacity 0.2s ease;
+}
+
+.reactflow-launch-btn-filled-new:hover {
+  opacity: 0.9;
+}
+
+/* Hide React Flow attribution watermark logo in bottom right */
+.react-flow__attribution {
+  display: none !important;
+}
+
+
+
+
+

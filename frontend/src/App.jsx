@@ -8,8 +8,22 @@ import SettingsPage from './pages/SettingsPage';
 import ProjectsPage from './pages/ProjectsPage';
 import ProjectDetailPage from './pages/ProjectDetailPage';
 import LandingPage from './pages/LandingPage';
+import ProjectSetupPage from './pages/ProjectSetupPage';
 import { supabase } from './lib/supabase';
+import { useDatabase } from './hooks/useDatabase';
 import './styles/global.css';
+
+// Auth Protection Guard Wrappers
+const Protected = ({ isAuthenticated, isGuest, children }) => {
+  return (isAuthenticated || isGuest) ? children : <Navigate to="/" replace />;
+};
+
+const Public = ({ isAuthenticated, isGuest, hasProjects, children }) => {
+  if (isAuthenticated || isGuest) {
+    return hasProjects ? <Navigate to="/dashboard" replace /> : <Navigate to="/new-project" replace />;
+  }
+  return children;
+};
 
 export default function App() {
   const [agents, setAgents] = useState(initialAgents);
@@ -21,6 +35,17 @@ export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
   const [isGuest, setIsGuest] = useState(false);
+  const [user, setUser] = useState(null);
+  const [hasProjects, setHasProjects] = useState(null);
+
+  // Database Sync Hook
+  const { 
+    saveProject, 
+    saveTasks, 
+    loadProjects, 
+    saveAgents, 
+    loadAgents 
+  } = useDatabase(user);
 
   // Settings tab selections
   const [activeSettingsTab, setActiveSettingsTab] = useState('agents');
@@ -33,67 +58,31 @@ export default function App() {
   const chatEndRef = useRef(null);
 
   // Lifted projects list state
-  const [activeProjectKey, setActiveProjectKey] = useState('food-delivery-app');
-  const [projectsList, setProjectsList] = useState({
-    'food-delivery-app': {
-      id: 'food-delivery-app',
-      name: 'Food Delivery App',
-      status: 'ACTIVE',
-      stack: 'React Native, FastAPI, PostgreSQL, Redis',
-      agents: ['chatgpt', 'claude', 'gemini', 'perplexity'],
-      roadmap: [
-        { id: 1, text: 'Design relational database layout & geospatial indexing', completed: true },
-        { id: 2, text: 'Establish JWT and OTP Authentication schemes', completed: true },
-        { id: 3, text: 'Build real-time courier geo-coordinate dispatch module', completed: true },
-        { id: 4, text: 'Create checkout funnel and Stripe API integration', completed: false },
-        { id: 5, text: 'Set up end-to-end integration and load testing suites', completed: false }
-      ]
-    },
-    'founderflow-dashboard': {
-      id: 'founderflow-dashboard',
-      name: 'FounderFlow Dashboard',
-      status: 'ACTIVE',
-      stack: 'React, Vite, CSS Grid, Geist Mono',
-      agents: ['deepseek', 'antigravity', 'windsurf'],
-      roadmap: [
-        { id: 1, text: 'Decompose monolithic code files into pages and components', completed: true },
-        { id: 2, text: 'Configure custom layout routes and useNavigate redirects', completed: true },
-        { id: 3, text: 'Style flat monochrome avatars with Geist Mono initials', completed: true },
-        { id: 4, text: 'Integrate dynamic Projects registry list pages', completed: false }
-      ]
-    },
-    'autonomous-logistics': {
-      id: 'autonomous-logistics',
-      name: 'Autonomous Logistics',
-      status: 'PAUSED',
-      stack: 'Rust, Go, C++, AWS IoT',
-      agents: ['cursor', 'codex'],
-      roadmap: [
-        { id: 1, text: 'Provision AWS IoT device shadows and endpoints gateway', completed: true },
-        { id: 2, text: 'Implement Rust packet parser logic with zero copy bindings', completed: false },
-        { id: 3, text: 'Verify coordinate coordinate calculations fuzz scans', completed: false }
-      ]
-    }
-  });
+  const [activeProjectKey, setActiveProjectKey] = useState(null);
+  const [projectsList, setProjectsList] = useState({});
 
   // Synchronization callback listener for auth changes
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setIsAuthenticated(!!session);
+      setUser(session?.user || null);
       setAuthLoading(false);
     });
     
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => {
         setIsAuthenticated(!!session);
+        setUser(session?.user || null);
         if (!session) {
           setIsGuest(false);
+          setHasProjects(null);
         }
       }
     );
 
     const handleGuestLogout = () => {
       setIsGuest(false);
+      setHasProjects(null);
     };
 
     window.addEventListener("ff_guest_logout", handleGuestLogout);
@@ -104,7 +93,40 @@ export default function App() {
     };
   }, []);
 
-  if (authLoading) return (
+  // Data loading useEffect (called unconditionally to follow the Rules of Hooks)
+  useEffect(() => {
+    if (!user) {
+      setHasProjects(null);
+      return;
+    }
+
+    const initData = async () => {
+      const savedProjects = await loadProjects();
+      if (savedProjects && Object.keys(savedProjects).length > 0) {
+        setProjectsList(savedProjects);
+        setHasProjects(true);
+      } else {
+        // First-time user - they have no projects yet
+        setHasProjects(false);
+      }
+
+      const savedAgents = await loadAgents();
+      if (savedAgents) {
+        setAgents(savedAgents);
+      }
+    };
+
+    initData();
+  }, [user]);
+
+  // Guest bypass skips setup
+  useEffect(() => {
+    if (isGuest) {
+      setHasProjects(true);
+    }
+  }, [isGuest]);
+
+  if (authLoading || (user && hasProjects === null)) return (
     <div style={{
       display: 'flex', alignItems: 'center', 
       justifyContent: 'center', height: '100vh',
@@ -116,19 +138,24 @@ export default function App() {
     </div>
   );
 
-  const activeProjectData = projectsList[activeProjectKey] || Object.values(projectsList)[0];
+  const activeProjectData = activeProjectKey 
+    ? projectsList[activeProjectKey] 
+    : Object.values(projectsList)[0] || null;
 
   // Derived states to maintain full backward compatibility with DashboardPage / SettingsPage props!
-  const activeProject = activeProjectData.name;
-  const roadmap = activeProjectData.roadmap;
+  const activeProject = activeProjectData?.name || 'No Project';
+  const roadmap = activeProjectData?.roadmap || [];
 
   const getProgress = (proj) => {
+    if (!proj || !proj.roadmap || proj.roadmap.length === 0) return 0;
     const r = proj.roadmap;
     const completedCount = r.filter(t => t.completed).length;
     return Math.round((completedCount / r.length) * 100);
   };
 
-  const completionPercentage = getProgress(activeProjectData);
+  const completionPercentage = activeProjectData 
+    ? getProgress(activeProjectData) 
+    : 0;
 
   const handleToggleProjectTask = (projectId, taskId) => {
     setProjectsList(prev => {
@@ -148,7 +175,12 @@ export default function App() {
   };
 
   const handleToggleTask = (taskId) => {
+    if (!activeProjectKey || !activeProjectData) return;
     handleToggleProjectTask(activeProjectKey, taskId);
+    const updated = activeProjectData.roadmap.map(t =>
+      t.id === taskId ? { ...t, completed: !t.completed } : t
+    );
+    saveTasks(activeProjectKey, updated);
   };
 
   const handleToggleAgent = (agentId) => {
@@ -188,10 +220,22 @@ export default function App() {
       ]
     };
 
-    setAgents([...agents, newAgent]);
+    const updatedAgents = [...agents, newAgent];
+    setAgents(updatedAgents);
+    saveAgents(updatedAgents);
     setIsAddingAgent(false);
     setNewAgentName('');
     setNewAgentRole('');
+  };
+
+  const handleProjectLaunch = (newProject, configuredAgents) => {
+    setProjectsList(prev => ({
+      ...prev,
+      [newProject.id]: newProject
+    }));
+    setAgents(configuredAgents);
+    setActiveProjectKey(newProject.id);
+    setHasProjects(true);
   };
 
   const activeAgent = agents.find((a) => a.id === activeAgentId) || agents[0];
@@ -311,32 +355,35 @@ export default function App() {
     };
   };
 
-  // Auth Protection Guard Wrappers
-  const Protected = ({ children }) => {
-    return (isAuthenticated || isGuest) ? children : <Navigate to="/" replace />;
-  };
-
-  const Public = ({ children }) => {
-    return (isAuthenticated || isGuest) ? <Navigate to="/dashboard" replace /> : children;
-  };
-
   return (
     <Routes>
       <Route path="/" element={
-        (isAuthenticated || isGuest) ? <Navigate to="/dashboard" replace /> : <LandingPage setGuestMode={() => setIsGuest(true)} />
+        (isAuthenticated || isGuest) ? (hasProjects ? <Navigate to="/dashboard" replace /> : <Navigate to="/new-project" replace />) : <LandingPage setGuestMode={() => setIsGuest(true)} />
       } />
       <Route path="/login" element={
-        <Public>
+        <Public isAuthenticated={isAuthenticated} isGuest={isGuest} hasProjects={hasProjects}>
           <LoginPage setGuestMode={() => setIsGuest(true)} />
         </Public>
       } />
       <Route path="/signup" element={
-        <Public>
+        <Public isAuthenticated={isAuthenticated} isGuest={isGuest} hasProjects={hasProjects}>
           <SignUpPage />
         </Public>
       } />
+      <Route path="/new-project" element={
+        <Protected isAuthenticated={isAuthenticated} isGuest={isGuest}>
+          {hasProjects ? <Navigate to="/dashboard" replace /> : (
+            <ProjectSetupPage 
+              saveProject={saveProject}
+              saveTasks={saveTasks}
+              saveAgents={saveAgents}
+              onProjectLaunch={handleProjectLaunch}
+            />
+          )}
+        </Protected>
+      } />
       <Route path="/dashboard" element={
-        <Protected>
+        <Protected isAuthenticated={isAuthenticated} isGuest={isGuest}>
           <DashboardPage 
             agents={agents}
             activeAgent={activeAgent}
@@ -357,7 +404,7 @@ export default function App() {
         </Protected>
       } />
       <Route path="/settings" element={
-        <Protected>
+        <Protected isAuthenticated={isAuthenticated} isGuest={isGuest}>
           <SettingsPage 
             agents={agents}
             activeAgent={activeAgent}
@@ -380,7 +427,7 @@ export default function App() {
         </Protected>
       } />
       <Route path="/projects" element={
-        <Protected>
+        <Protected isAuthenticated={isAuthenticated} isGuest={isGuest}>
           <ProjectsPage 
             agents={agents}
             activeAgentId={activeAgentId}
@@ -390,7 +437,7 @@ export default function App() {
         </Protected>
       } />
       <Route path="/projects/:id" element={
-        <Protected>
+        <Protected isAuthenticated={isAuthenticated} isGuest={isGuest}>
           <ProjectDetailPage 
             agents={agents}
             activeAgentId={activeAgentId}

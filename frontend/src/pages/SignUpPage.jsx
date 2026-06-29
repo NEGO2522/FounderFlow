@@ -58,7 +58,10 @@ export default function SignUpPage() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: window.location.origin + '/dashboard'
+        redirectTo: `${window.location.origin}/dashboard`,
+        queryParams: {
+          prompt: 'select_account'
+        }
       }
     });
     if (error) setError(typeof error === 'string' ? error : error?.message || JSON.stringify(error));

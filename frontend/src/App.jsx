@@ -70,9 +70,31 @@ export default function App() {
     });
     
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+      async (_event, session) => {
         setIsAuthenticated(!!session);
         setUser(session?.user || null);
+        
+        if (session && _event === 'SIGNED_IN') {
+          // Check if user has projects
+          const { data } = await supabase
+            .from('projects')
+            .select('id')
+            .eq('user_id', session.user.id)
+            .limit(1);
+          
+          if (data && data.length > 0) {
+            setHasProjects(true);
+            if (window.location.pathname !== '/dashboard') {
+              window.location.href = '/dashboard';
+            }
+          } else {
+            setHasProjects(false);
+            if (window.location.pathname !== '/new-project') {
+              window.location.href = '/new-project';
+            }
+          }
+        }
+        
         if (!session) {
           setIsGuest(false);
           setHasProjects(null);

@@ -2,6 +2,7 @@ import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
 import authRoutes from './routes/auth.js'
+import chatRoutes from './routes/chat.js'
 
 dotenv.config()
 
@@ -14,6 +15,7 @@ app.get('/health', (req, res) => {
 })
 
 app.use('/auth', authRoutes)
+app.use('/chat', chatRoutes)
 
 app.listen(process.env.PORT || 3001, () => {
   console.log(`FounderFlow backend running on port ${process.env.PORT || 3001}`)

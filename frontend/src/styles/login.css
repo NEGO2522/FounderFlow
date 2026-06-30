@@ -267,3 +267,27 @@
   border-color: var(--accent-lime);
   color: var(--accent-lime);
 }
+
+@media (max-width: 768px) {
+  .login-page-container {
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    border-radius: 0;
+  }
+  .login-left-brand {
+    display: none !important;
+  }
+  .login-right-auth {
+    width: 100% !important;
+    padding: 24px !important;
+    border-radius: 0;
+  }
+  .login-auth-card {
+    width: 100%;
+    max-width: 360px;
+  }
+  .login-mobile-logo {
+    display: block !important;
+  }
+}

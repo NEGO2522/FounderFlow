@@ -7,6 +7,7 @@ import '../styles/projects.css';
 export default function ProjectDetailPage({ agents, activeAgentId, setActiveAgentId, projectsList, handleToggleProjectTask }) {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [mobileSidebarOpen, setMobileSidebarOpen] = React.useState(false);
 
   const project = projectsList[id];
 
@@ -28,13 +29,15 @@ export default function ProjectDetailPage({ agents, activeAgentId, setActiveAgen
   return (
     <div className="dashboard-container">
       <div className="noise-overlay"></div>
-      <TopBar title={`PROJECT DETAILS // ${project.name.toUpperCase()}`} />
+      <TopBar title={`PROJECT DETAILS // ${project.name.toUpperCase()}`} onMenuClick={() => setMobileSidebarOpen(true)} />
       
       <div className="dashboard-body">
         <Sidebar 
           agents={agents} 
           activeAgentId={activeAgentId} 
           setActiveAgentId={setActiveAgentId} 
+          isOpen={mobileSidebarOpen}
+          onClose={() => setMobileSidebarOpen(false)}
         />
 
         <div className="project-detail-container">

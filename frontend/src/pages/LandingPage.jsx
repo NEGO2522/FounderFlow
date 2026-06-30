@@ -19,6 +19,7 @@ const gridAgents = [
 export default function LandingPage({ setGuestMode }) {
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleGuestLogin = () => {
     if (setGuestMode) setGuestMode();
@@ -99,7 +100,7 @@ export default function LandingPage({ setGuestMode }) {
           </span>
         </div>
 
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+        <div className="navbar-actions" style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
           <button className="navbar-signin-btn" onClick={() => navigate('/login')}>
             Sign In
           </button>
@@ -107,7 +108,34 @@ export default function LandingPage({ setGuestMode }) {
             Start Free →
           </button>
         </div>
+
+        <button 
+          className="navbar-hamburger-btn" 
+          onClick={() => setMobileMenuOpen(true)}
+        >
+          <span className="material-symbols-outlined" style={{ color: '#FFF', fontSize: '24px' }}>menu</span>
+        </button>
       </nav>
+
+      {mobileMenuOpen && (
+        <div className="mobile-menu-overlay">
+          <div className="mobile-menu-header">
+            <span style={{ fontSize: '16px', fontWeight: '800', letterSpacing: '0.12em', color: '#FFF' }}>
+              FOUNDER<span style={{ color: 'var(--accent-lime)' }}>//</span>FLOW
+            </span>
+            <button className="mobile-menu-close-btn" onClick={() => setMobileMenuOpen(false)}>
+              <span className="material-symbols-outlined" style={{ color: '#FFF', fontSize: '24px' }}>close</span>
+            </button>
+          </div>
+          <div className="mobile-menu-links">
+            <span onClick={() => { scrollToSection('features'); setMobileMenuOpen(false); }}>Features</span>
+            <span onClick={() => { scrollToSection('agents'); setMobileMenuOpen(false); }}>Agents</span>
+            <span onClick={() => { scrollToSection('pricing'); setMobileMenuOpen(false); }}>Pricing</span>
+            <button className="mobile-menu-signin-btn" onClick={() => { navigate('/login'); setMobileMenuOpen(false); }}>Sign In</button>
+            <button className="mobile-menu-start-btn" onClick={() => { navigate('/signup'); setMobileMenuOpen(false); }}>Start Free →</button>
+          </div>
+        </div>
+      )}
 
       {/* Hero Section with split columns */}
       <div className="landing-hero-wrapper">

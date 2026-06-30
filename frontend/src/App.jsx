@@ -44,7 +44,9 @@ export default function App() {
     saveTasks, 
     loadProjects, 
     saveAgents, 
-    loadAgents 
+    loadAgents,
+    saveMessages,
+    loadMessages
   } = useDatabase(user);
 
   // Settings tab selections
@@ -55,6 +57,21 @@ export default function App() {
   const [newAgentName, setNewAgentName] = useState('');
   const [newAgentRole, setNewAgentRole] = useState('');
   const [newAgentLink, setNewAgentLink] = useState('');
+  const [apiKey, setApiKey] = useState('');
+  const [keySaved, setKeySaved] = useState(false);
+
+  const handleSaveApiKey = async () => {
+    if (!user) return;
+    const { error } = await supabase
+      .from('profiles')
+      .update({ openai_api_key: apiKey })
+      .eq('id', user.id);
+    
+    if (!error) {
+      setKeySaved(true);
+      setTimeout(() => setKeySaved(false), 2000);
+    }
+  };
   const chatEndRef = useRef(null);
 
   // Lifted projects list state
@@ -138,6 +155,27 @@ export default function App() {
       if (savedAgents && savedAgents.length > 0) {
         setAgents(savedAgents);
         setActiveAgentId(savedAgents[0].id);
+      }
+
+      // Load saved messages
+      const savedMessages = await loadMessages();
+      if (savedMessages) {
+        setAgents(prev => prev.map(agent => ({
+          ...agent,
+          messages: savedMessages[agent.id] 
+            || savedMessages[agent.avatar]
+            || agent.messages
+        })));
+      }
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('openai_api_key')
+        .eq('id', user.id)
+        .single()
+
+      if (profile?.openai_api_key) {
+        setApiKey(profile.openai_api_key)
       }
     };
 
@@ -329,97 +367,7 @@ export default function App() {
     }
   };
 
-  const handleSendMessage = (text) => {
-    if (!text.trim()) return;
 
-    setAgents(
-      agents.map((agent) => {
-        if (agent.id === activeAgentId) {
-          return {
-            ...agent,
-            messages: [
-              ...agent.messages,
-              {
-                sender: 'user',
-                text: text,
-                timestamp: new Date().toTimeString().slice(0, 5)
-              }
-            ]
-          };
-        }
-        return agent;
-      })
-    );
-
-    setUserInput('');
-
-    setTimeout(() => {
-      const response = getSimulatedResponse(activeAgent.name, text);
-      setAgents(prevAgents => 
-        prevAgents.map((agent) => {
-          if (agent.id === activeAgentId) {
-            return {
-              ...agent,
-              messages: [
-                ...agent.messages,
-                {
-                  sender: 'agent',
-                  text: response.text,
-                  timestamp: new Date().toTimeString().slice(0, 5),
-                  artifact: response.artifact
-                }
-              ]
-            };
-          }
-          return agent;
-        })
-      );
-    }, 1500);
-  };
-
-  const getSimulatedResponse = (agentName, query) => {
-    const q = query.toLowerCase();
-    
-    if (agentName === 'DeepSeek' || agentName === 'Claude') {
-      if (q.includes('schema') || q.includes('database') || q.includes('sql')) {
-        return {
-          text: "I've structured a migration update. Exposing relational tables and active coordinates tracker index mapping.",
-          artifact: {
-            title: 'migration.sql',
-            content: `-- PostgreSQL Database Update\nALTER TABLE orders ADD COLUMN tracker POINT;\nCREATE INDEX idx_orders_tracker ON orders USING gist(tracker);`
-          }
-        };
-      }
-      return {
-        text: "I've structured the Actix-web listener wrapper setup config files.",
-        artifact: {
-          title: 'main.rs',
-          content: `// Minimal API Wrapper\nuse actix_web::{get, App, HttpResponse, HttpServer, Responder};\n\n#[get("/status")]\nasync fn status() -> impl Responder {\n    HttpResponse::Ok().body("OK")\n}`
-        }
-      };
-    } else if (agentName === 'ChatGPT') {
-      return {
-        text: "Launch slogans and copy structures updated for the campaign.",
-        artifact: {
-          title: 'copy.md',
-          content: `# Launch Campaign Copy\n- Tagline: Local gourmet, 15-minute delivery.\n- Objective: Convert top-of-funnel downtown traffic.`
-        }
-      };
-    } else if (agentName === 'Gemini' || agentName === 'Perplexity') {
-      return {
-        text: "Security headers audited. Recommendations exported below.",
-        artifact: {
-          title: 'security.yaml',
-          content: `headers:\n  strict-transport-security: max-age=31536000; includeSubDomains\n  x-frame-options: DENY`
-        }
-      };
-    }
-    
-    return {
-      text: "Deliverables compiled and cached in workspace registry.",
-      artifact: null
-    };
-  };
 
   return (
     <Routes>
@@ -475,7 +423,10 @@ export default function App() {
             handleToggleTask={handleToggleTask}
             completionPercentage={completionPercentage}
             projects={projects}
-            handleSendMessage={handleSendMessage}
+            setAgents={setAgents}
+            activeAgentId={activeAgentId}
+            activeProjectData={activeProjectData}
+            saveMessages={saveMessages}
             chatEndRef={chatEndRef}
           />
         </Protected>
@@ -502,6 +453,11 @@ export default function App() {
             projects={projects}
             handleRoleChange={handleRoleChange}
             setActiveProjectKey={setActiveProjectKey}
+            user={user}
+            apiKey={apiKey}
+            setApiKey={setApiKey}
+            handleSaveApiKey={handleSaveApiKey}
+            keySaved={keySaved}
           />
         </Protected>
       } />

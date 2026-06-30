@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import TopBar from '../components/TopBar';
 import Sidebar from '../components/Sidebar';
+import { supabase } from '../lib/supabase';
 import '../styles/settings.css';
 
 export default function SettingsPage({
@@ -23,9 +24,15 @@ export default function SettingsPage({
   handleAddNewAgent,
   projects,
   handleRoleChange,
-  setActiveProjectKey
+  setActiveProjectKey,
+  user,
+  apiKey,
+  setApiKey,
+  handleSaveApiKey,
+  keySaved
 }) {
   const navigate = useNavigate();
+  const [mobileSidebarOpen, setMobileSidebarOpen] = React.useState(false);
   const [formErrors, setFormErrors] = React.useState({});
 
   const handleSubmit = (e) => {
@@ -221,6 +228,63 @@ export default function SettingsPage({
     );
   };
 
+  const renderApiKeyTab = () => (
+    <>
+      <div className="settings-header-row">
+        <div>
+          <h2 className="settings-title">Connect Your AI</h2>
+          <div className="settings-subtitle">
+            Add your OpenAI key to make your AI team actually work.
+          </div>
+        </div>
+      </div>
+
+      <div style={{ maxWidth: '500px', marginTop: '24px' }}>
+        <label className="settings-label">OpenAI API Key</label>
+        <input
+          type="password"
+          className="settings-input"
+          placeholder="sk-..."
+          value={apiKey}
+          onChange={(e) => setApiKey(e.target.value)}
+        />
+        <p style={{ 
+          fontSize: '11px', color: '#6B7155', 
+          marginTop: '8px', fontFamily: 'Geist Mono' 
+        }}>
+          Your key is encrypted and only used to power your 5 AI agents. 
+          Get one at platform.openai.com/api-keys
+        </p>
+
+        <button 
+          onClick={handleSaveApiKey}
+          style={{
+            marginTop: '16px',
+            padding: '10px 20px',
+            background: '#C8F04A',
+            border: 'none',
+            color: '#0F1109',
+            fontSize: '11px',
+            fontWeight: 'bold',
+            fontFamily: 'Geist Mono',
+            cursor: 'pointer'
+          }}
+        >
+          Save Key
+        </button>
+
+        {keySaved && (
+          <span style={{ 
+            marginLeft: '12px', color: '#C8F04A', 
+            fontSize: '11px', fontFamily: 'Geist Mono' 
+          }}>
+            ● Saved
+          </span>
+        )}
+      </div>
+    </>
+  );
+
   const renderBillingTab = () => (
     <>
       <div className="settings-header-row">
@@ -232,7 +296,7 @@ export default function SettingsPage({
         </div>
       </div>
 
-      <div style={{ 
+      <div className="billing-plans-grid" style={{ 
         display: 'grid', 
         gridTemplateColumns: '1fr 1fr 1fr', 
         gap: '16px',
@@ -317,7 +381,7 @@ export default function SettingsPage({
             fontSize: '11px', color: '#9AA066', 
             lineHeight: '2', marginBottom: '24px' 
           }}>
-            ✓ All 10 AI Agents<br/>
+            ✓ All 5 AI Agents<br/>
             ✓ Unlimited Projects<br/>
             ✓ Custom workflows<br/>
             ✓ Fast support<br/>
@@ -436,13 +500,15 @@ export default function SettingsPage({
   return (
     <div className="dashboard-container">
       <div className="noise-overlay"></div>
-      <TopBar title="SETTINGS" />
+      <TopBar title="SETTINGS" onMenuClick={() => setMobileSidebarOpen(true)} />
 
       <div className="dashboard-body">
         <Sidebar 
           agents={agents} 
           activeAgentId={activeAgent?.id} 
           setActiveAgentId={setActiveAgentId} 
+          isOpen={mobileSidebarOpen}
+          onClose={() => setMobileSidebarOpen(false)}
         />
 
         <div className="settings-container">
@@ -454,6 +520,13 @@ export default function SettingsPage({
             >
               <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>smart_toy</span>
               AI Agents
+            </button>
+            <button 
+              className={`settings-nav-btn ${activeSettingsTab === 'api-key' ? 'active' : ''}`}
+              onClick={() => setActiveSettingsTab('api-key')}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>key</span>
+              API Key
             </button>
             <button 
               className={`settings-nav-btn ${activeSettingsTab === 'projects' ? 'active' : ''}`}
@@ -474,6 +547,7 @@ export default function SettingsPage({
           {/* Right Tab Content */}
           <section className="settings-content">
             {activeSettingsTab === 'agents' && renderAgentsTab()}
+            {activeSettingsTab === 'api-key' && renderApiKeyTab()}
             {activeSettingsTab === 'projects' && renderProjectsTab()}
             {activeSettingsTab === 'billing' && renderBillingTab()}
           </section>

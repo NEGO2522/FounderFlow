@@ -100,6 +100,11 @@ export default function LoginPage({ setGuestMode }) {
       {/* Right Side - Auth */}
       <div className="login-right-auth">
         <div className="login-auth-card">
+          <div className="login-mobile-logo" style={{ display: 'none', marginBottom: '24px' }}>
+            <span style={{ fontSize: '13px', fontWeight: '800', letterSpacing: '0.12em', color: 'var(--text-warm)' }}>
+              FOUNDER<span style={{ color: 'var(--accent-lime)' }}>//</span>FLOW
+            </span>
+          </div>
           <div className="login-auth-header">
             <h2 style={{ fontSize: '20px', fontWeight: '800', color: 'var(--text-warm)', margin: 0 }}>Welcome back</h2>
             <span style={{ fontSize: '12px', color: '#a4aa8e' }}>Sign in to continue</span>

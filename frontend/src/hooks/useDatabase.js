@@ -68,6 +68,7 @@ export function useDatabase(user) {
         status: p.status,
         stack: p.stack,
         agents: p.agents || [],
+        idea_text: p.idea_text,
         roadmap: (tasks || [])
           .filter(t => t.project_id === p.id)
           .map(t => ({
@@ -138,11 +139,70 @@ export function useDatabase(user) {
     }))
   }
 
+  // Save messages for an agent
+  const saveMessages = async (agentId, messages) => {
+    if (!user) return
+    
+    // Delete old messages for this agent
+    await supabase
+      .from('messages')
+      .delete()
+      .eq('user_id', user.id)
+      .eq('agent_id', agentId)
+
+    if (!messages || messages.length === 0) return
+
+    // Insert new messages
+    const rows = messages.map(m => ({
+      user_id: user.id,
+      agent_id: agentId,
+      sender: m.sender,
+      text: m.text,
+      artifact: m.artifact || null,
+      timestamp: m.timestamp
+    }))
+
+    const { error } = await supabase
+      .from('messages')
+      .insert(rows)
+
+    if (error) console.error('Save messages error:', error)
+  }
+
+  // Load all messages for all agents
+  const loadMessages = async () => {
+    if (!user) return null
+
+    const { data, error } = await supabase
+      .from('messages')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: true })
+
+    if (error || !data) return null
+
+    // Group by agent_id
+    const grouped = {}
+    data.forEach(m => {
+      if (!grouped[m.agent_id]) grouped[m.agent_id] = []
+      grouped[m.agent_id].push({
+        sender: m.sender,
+        text: m.text,
+        artifact: m.artifact,
+        timestamp: m.timestamp
+      })
+    })
+
+    return grouped
+  }
+
   return { 
     saveProject, 
     saveTasks, 
     loadProjects, 
     saveAgents, 
-    loadAgents 
+    loadAgents,
+    saveMessages,
+    loadMessages
   }
 }

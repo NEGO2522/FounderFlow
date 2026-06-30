@@ -15,16 +15,11 @@ import heroImage from '../assets/hero.png';
 import '../styles/setup.css';
 
 const defaultAgents = [
-  { id: 'chatgpt', name: 'ChatGPT', role: 'Marketing & Growth', avatar: 'GP' },
-  { id: 'claude', name: 'Claude', role: 'Strategy & Docs', avatar: 'CL' },
-  { id: 'gemini', name: 'Gemini', role: 'Research & Analysis', avatar: 'GM' },
-  { id: 'perplexity', name: 'Perplexity', role: 'Market Intelligence', avatar: 'PX' },
-  { id: 'deepseek', name: 'DeepSeek', role: 'Backend Development', avatar: 'DS' },
-  { id: 'antigravity', name: 'Antigravity', role: 'UI/UX Building', avatar: 'AG' },
-  { id: 'windsurf', name: 'Windsurf', role: 'Full Stack Execution', avatar: 'WS' },
-  { id: 'cursor', name: 'Cursor', role: 'Code Review & Debug', avatar: 'CR' },
-  { id: 'codex', name: 'Codex', role: 'Code Generation', avatar: 'CX' },
-  { id: 'stitch', name: 'Stitch', role: 'Design System', avatar: 'ST' }
+  { id: 'sora', name: 'Sora', role: 'Marketing & Growth', avatar: 'SO', tasks: ['Marketing & Growth'] },
+  { id: 'friday', name: 'Friday', role: 'Coding & Development', avatar: 'FR', tasks: ['Coding & Development'] },
+  { id: 'lora', name: 'Lora', role: 'Opportunities & Funding', avatar: 'LO', tasks: ['Opportunities & Funding'] },
+  { id: 'siru', name: 'Siru', role: 'Brain Storming & Ideas', avatar: 'SI', tasks: ['Brain Storming & Ideas'] },
+  { id: 'ena', name: 'Ena', role: 'General Assistant', avatar: 'EN', tasks: ['General Assistant'] }
 ];
 
 const loadingPhrases = [
@@ -301,8 +296,12 @@ export default function ProjectSetupPage({ saveProject, saveTasks, saveAgents, o
       sessionStorage.removeItem('ff_setup_idea');
       setStep('input');
       setIdeaText('');
-      setNodes([]);
-      setEdges([]);
+      setAgentsList(defaultAgents.map(a => ({ 
+        ...a, tasks: [a.role] 
+      })));
+      // Only clear nodes if they exist
+      setNodes(prev => prev.length > 0 ? [] : prev);
+      setEdges(prev => prev.length > 0 ? [] : prev);
     }
   }, [freshStart]);
 
@@ -350,77 +349,44 @@ export default function ProjectSetupPage({ saveProject, saveTasks, saveAgents, o
       {
         id: 'idea',
         type: 'idea',
-        position: { x: 50, y: 250 },
+        position: { x: 50, y: 260 },
         data: { preview: previewText, style: { animationDelay: '0ms' } }
       },
-      // Left Column (x: 250)
       {
-        id: 'chatgpt',
+        id: 'sora',
         type: 'agent',
-        position: { x: 250, y: 30 },
-        data: { id: 'chatgpt', name: 'ChatGPT', role: agents.find(a => a.id === 'chatgpt')?.role || '', tasks: agents.find(a => a.id === 'chatgpt')?.tasks || [], avatar: 'GP', onRoleChange: handleRoleChange, style: { animationDelay: '100ms' } }
+        position: { x: 280, y: 60 },
+        data: { id: 'sora', name: 'Sora', role: agents.find(a => a.id === 'sora')?.role || '', tasks: agents.find(a => a.id === 'sora')?.tasks || [], avatar: 'SO', onRoleChange: handleRoleChange, style: { animationDelay: '100ms' } }
       },
       {
-        id: 'gemini',
+        id: 'friday',
         type: 'agent',
-        position: { x: 250, y: 130 },
-        data: { id: 'gemini', name: 'Gemini', role: agents.find(a => a.id === 'gemini')?.role || '', tasks: agents.find(a => a.id === 'gemini')?.tasks || [], avatar: 'GM', onRoleChange: handleRoleChange, style: { animationDelay: '200ms' } }
+        position: { x: 280, y: 160 },
+        data: { id: 'friday', name: 'Friday', role: agents.find(a => a.id === 'friday')?.role || '', tasks: agents.find(a => a.id === 'friday')?.tasks || [], avatar: 'FR', onRoleChange: handleRoleChange, style: { animationDelay: '200ms' } }
       },
       {
-        id: 'deepseek',
+        id: 'lora',
         type: 'agent',
-        position: { x: 250, y: 230 },
-        data: { id: 'deepseek', name: 'DeepSeek', role: agents.find(a => a.id === 'deepseek')?.role || '', tasks: agents.find(a => a.id === 'deepseek')?.tasks || [], avatar: 'DS', onRoleChange: handleRoleChange, style: { animationDelay: '300ms' } }
+        position: { x: 280, y: 260 },
+        data: { id: 'lora', name: 'Lora', role: agents.find(a => a.id === 'lora')?.role || '', tasks: agents.find(a => a.id === 'lora')?.tasks || [], avatar: 'LO', onRoleChange: handleRoleChange, style: { animationDelay: '300ms' } }
       },
       {
-        id: 'windsurf',
+        id: 'siru',
         type: 'agent',
-        position: { x: 250, y: 330 },
-        data: { id: 'windsurf', name: 'Windsurf', role: agents.find(a => a.id === 'windsurf')?.role || '', tasks: agents.find(a => a.id === 'windsurf')?.tasks || [], avatar: 'WS', onRoleChange: handleRoleChange, style: { animationDelay: '400ms' } }
+        position: { x: 280, y: 360 },
+        data: { id: 'siru', name: 'Siru', role: agents.find(a => a.id === 'siru')?.role || '', tasks: agents.find(a => a.id === 'siru')?.tasks || [], avatar: 'SI', onRoleChange: handleRoleChange, style: { animationDelay: '400ms' } }
       },
       {
-        id: 'codex',
+        id: 'ena',
         type: 'agent',
-        position: { x: 250, y: 430 },
-        data: { id: 'codex', name: 'Codex', role: agents.find(a => a.id === 'codex')?.role || '', tasks: agents.find(a => a.id === 'codex')?.tasks || [], avatar: 'CX', onRoleChange: handleRoleChange, style: { animationDelay: '500ms' } }
+        position: { x: 280, y: 460 },
+        data: { id: 'ena', name: 'Ena', role: agents.find(a => a.id === 'ena')?.role || '', tasks: agents.find(a => a.id === 'ena')?.tasks || [], avatar: 'EN', onRoleChange: handleRoleChange, style: { animationDelay: '500ms' } }
       },
-      // Right Column (x: 470)
-      {
-        id: 'claude',
-        type: 'agent',
-        position: { x: 470, y: 30 },
-        data: { id: 'claude', name: 'Claude', role: agents.find(a => a.id === 'claude')?.role || '', tasks: agents.find(a => a.id === 'claude')?.tasks || [], avatar: 'CL', onRoleChange: handleRoleChange, style: { animationDelay: '600ms' } }
-      },
-      {
-        id: 'perplexity',
-        type: 'agent',
-        position: { x: 470, y: 130 },
-        data: { id: 'perplexity', name: 'Perplexity', role: agents.find(a => a.id === 'perplexity')?.role || '', tasks: agents.find(a => a.id === 'perplexity')?.tasks || [], avatar: 'PX', onRoleChange: handleRoleChange, style: { animationDelay: '700ms' } }
-      },
-      {
-        id: 'antigravity',
-        type: 'agent',
-        position: { x: 470, y: 230 },
-        data: { id: 'antigravity', name: 'Antigravity', role: agents.find(a => a.id === 'antigravity')?.role || '', tasks: agents.find(a => a.id === 'antigravity')?.tasks || [], avatar: 'AG', onRoleChange: handleRoleChange, style: { animationDelay: '800ms' } }
-      },
-      {
-        id: 'cursor',
-        type: 'agent',
-        position: { x: 470, y: 330 },
-        data: { id: 'cursor', name: 'Cursor', role: agents.find(a => a.id === 'cursor')?.role || '', tasks: agents.find(a => a.id === 'cursor')?.tasks || [], avatar: 'CR', onRoleChange: handleRoleChange, style: { animationDelay: '900ms' } }
-      },
-      {
-        id: 'stitch',
-        type: 'agent',
-        position: { x: 470, y: 430 },
-        data: { id: 'stitch', name: 'Stitch', role: agents.find(a => a.id === 'stitch')?.role || '', tasks: agents.find(a => a.id === 'stitch')?.tasks || [], avatar: 'ST', onRoleChange: handleRoleChange, style: { animationDelay: '1000ms' } }
-      },
-      // Launch node
       {
         id: 'launch',
         type: 'launch',
-        position: { x: 700, y: 250 },
-        data: { style: { animationDelay: '1200ms' } }
+        position: { x: 550, y: 260 },
+        data: { style: { animationDelay: '600ms' } }
       }
     ];
   };
@@ -671,18 +637,25 @@ export default function ProjectSetupPage({ saveProject, saveTasks, saveAgents, o
 
   const detectStack = (idea) => {
     const stacks = []
-    if (/app|mobile/i.test(idea)) 
+    const text = idea.toLowerCase()
+    
+    if (/app|mobile|android|ios/i.test(text)) 
       stacks.push('React Native')
-    if (/web|website|dashboard/i.test(idea)) 
+    if (/web|website|dashboard|portal/i.test(text)) 
       stacks.push('React')
-    if (/api|backend|server/i.test(idea)) 
+    if (/api|backend|server/i.test(text)) 
       stacks.push('Node.js')
-    if (/database|data/i.test(idea)) 
+    if (/database|data|store/i.test(text)) 
       stacks.push('PostgreSQL')
-    if (/delivery|real.?time/i.test(idea)) 
+    if (/delivery|realtime|real.?time|live/i.test(text)) 
       stacks.push('Redis')
-    if (/ai|ml|model/i.test(idea)) 
+    if (/ai|ml|model|predict/i.test(text)) 
       stacks.push('Python')
+    if (/payment|pay|stripe/i.test(text)) 
+      stacks.push('Stripe')
+    if (/chat|message|notify/i.test(text)) 
+      stacks.push('WebSockets')
+      
     return stacks.length > 0 
       ? stacks.join(', ') 
       : 'React, Node.js, PostgreSQL'
@@ -797,8 +770,9 @@ export default function ProjectSetupPage({ saveProject, saveTasks, saveAgents, o
         id: projectId,
         name: projectName,
         status: 'ACTIVE',
-        stack: 'TBD',
+        stack: detectStack(ideaText),
         agents: savedNodesRef.current.map(n => n.avatar),
+        idea_text: ideaText,
         roadmap: [
           { id: 1, text: 'Initialize repository structure', completed: true },
           { id: 2, text: 'Configure agent workspace channels', completed: false },
@@ -962,7 +936,7 @@ export default function ProjectSetupPage({ saveProject, saveTasks, saveAgents, o
       {step === 'workflow' && (
         <div className="workflow-layout-overhaul">
           {/* Floating Top Left Title */}
-          <div style={{ position: 'absolute', top: '40px', left: '40px', zIndex: 100, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <div className="workflow-title-floating" style={{ position: 'absolute', top: '40px', left: '40px', zIndex: 100, display: 'flex', flexDirection: 'column', gap: '6px' }}>
             <div 
               className="workflow-header-logo" 
               onClick={() => navigate('/dashboard')}
@@ -971,7 +945,7 @@ export default function ProjectSetupPage({ saveProject, saveTasks, saveAgents, o
               FOUNDER<span>//</span>FLOW
             </div>
             <div style={{ fontSize: '12px', fontWeight: '800', color: '#C8F04A', letterSpacing: '0.15em' }}>
-              YOUR TEAM IS READY · 10 AIs
+              YOUR TEAM IS READY · 5 AIs
             </div>
           </div>
 
@@ -1002,7 +976,7 @@ export default function ProjectSetupPage({ saveProject, saveTasks, saveAgents, o
           </main>
 
           {/* Fixed Floating Action Buttons in bottom-right corner */}
-          <div style={{ position: 'fixed', bottom: '40px', right: '40px', zIndex: 100, display: 'flex', gap: '12px' }}>
+          <div className="workflow-actions-floating" style={{ position: 'fixed', bottom: '40px', right: '40px', zIndex: 100, display: 'flex', gap: '12px' }}>
             <button 
               className="reactflow-customize-btn-new"
               onClick={() => setSheetOpen(true)}

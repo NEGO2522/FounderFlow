@@ -1,148 +1,82 @@
 export const initialAgents = [
   {
-    id: 'chatgpt',
-    name: 'ChatGPT',
-    role: 'General Intelligence',
-    avatar: 'GP',
-    status: 'Active',
+    id: 'sora',
+    name: 'Sora',
+    role: 'Marketing Specialist',
+    avatar: 'SO',
     enabled: true,
-    model: 'GPT-4o',
-    activeTask: 'Analyzing product copy and user retention patterns',
+    model: 'gpt-4o-mini',
+    activeTask: 'Ready for marketing tasks',
     messages: [
-      { sender: 'agent', text: "Workspace loaded. I have analyzed current acquisition rates and retention statistics.", timestamp: '19:02' }
-    ]
-  },
-  {
-    id: 'claude',
-    name: 'Claude',
-    role: 'Reasoning & Writing',
-    avatar: 'CL',
-    status: 'Working',
-    enabled: true,
-    model: 'Claude 3.5 Sonnet',
-    activeTask: 'Refactoring workspace routes and layout files',
-    messages: [
-      { sender: 'agent', text: "Workspace refactoring in progress. Constructed modular components and clean directories.", timestamp: '19:10',
-        artifact: {
-          title: 'routes.json',
-          content: `{
-  "routes": [
-    { "path": "/", "component": "LoginPage" },
-    { "path": "/signup", "component": "SignUpPage" },
-    { "path": "/dashboard", "component": "DashboardPage" }
-  ]
-}`
-        }
+      {
+        sender: 'agent',
+        text: 'Hey! I am Sora, your marketing specialist. Tell me about your product and I will help you with growth strategy, campaigns, copy, and more.',
+        timestamp: new Date().toTimeString().slice(0, 5)
       }
     ]
   },
   {
-    id: 'gemini',
-    name: 'Gemini',
-    role: 'Multimodal AI',
-    avatar: 'GM',
-    status: 'Idle',
+    id: 'friday',
+    name: 'Friday',
+    role: 'Coding Specialist',
+    avatar: 'FR',
     enabled: true,
-    model: 'Gemini 1.5 Pro',
-    activeTask: 'Awaiting instruction',
+    model: 'gpt-4o-mini',
+    activeTask: 'Ready for coding tasks',
     messages: [
-      { sender: 'agent', text: "Multimodal ingestion pipeline ready. Input images or diagrams to begin.", timestamp: '18:50' }
-    ]
-  },
-  {
-    id: 'perplexity',
-    name: 'Perplexity',
-    role: 'Research & Search',
-    avatar: 'PX',
-    status: 'Active',
-    enabled: true,
-    model: 'Perplexity Search',
-    activeTask: 'Scraping competitor benchmarks',
-    messages: [
-      { sender: 'agent', text: "Competitor reports compiled. Food Delivery App benchmarks exported.", timestamp: '18:34' }
-    ]
-  },
-  {
-    id: 'deepseek',
-    name: 'DeepSeek',
-    role: 'Code & Reasoning',
-    avatar: 'DS',
-    status: 'Working',
-    enabled: true,
-    model: 'DeepSeek Coder',
-    activeTask: 'Optimizing SQL query database plan execution',
-    messages: [
-      { sender: 'agent', text: "Fuzzing queries. Created indices for order tracking geospatial coordinates.", timestamp: '19:15',
-        artifact: {
-          title: 'index.sql',
-          content: `CREATE INDEX idx_orders_coords ON orders USING gist(tracker_coords);`
-        }
+      {
+        sender: 'agent',
+        text: 'Hey! I am Friday, your coding specialist. Share your technical challenges and I will help you build, debug, and ship faster.',
+        timestamp: new Date().toTimeString().slice(0, 5)
       }
     ]
   },
   {
-    id: 'antigravity',
-    name: 'Antigravity',
-    role: 'UI Building',
-    avatar: 'AG',
-    status: 'Active',
+    id: 'lora',
+    name: 'Lora',
+    role: 'Opportunities Finder',
+    avatar: 'LO',
     enabled: true,
-    model: 'Antigravity UI',
-    activeTask: 'Styling login card layouts',
+    model: 'gpt-4o-mini',
+    activeTask: 'Ready to find opportunities',
     messages: [
-      { sender: 'agent', text: "UI styling tokens configured. Matte military theme with lime highlights applied.", timestamp: '18:42' }
+      {
+        sender: 'agent',
+        text: 'Hey! I am Lora, your opportunities finder. I help you discover funding, partnerships, market gaps, and growth opportunities for your product.',
+        timestamp: new Date().toTimeString().slice(0, 5)
+      }
     ]
   },
   {
-    id: 'windsurf',
-    name: 'Windsurf',
-    role: 'Agentic Coding',
-    avatar: 'WS',
-    status: 'Idle',
+    id: 'siru',
+    name: 'Siru',
+    role: 'Brain Storming',
+    avatar: 'SI',
     enabled: true,
-    model: 'Windsurf Agent',
-    activeTask: 'Awaiting instruction',
+    model: 'gpt-4o-mini',
+    activeTask: 'Ready to brainstorm',
     messages: [
-      { sender: 'agent', text: "Agentic IDE session listening. Awaiting instructions for codebase automation.", timestamp: '18:30' }
+      {
+        sender: 'agent',
+        text: 'Hey! I am Siru, your brainstorming partner. Got a problem or idea? Let us think it through together and come up with creative solutions.',
+        timestamp: new Date().toTimeString().slice(0, 5)
+      }
     ]
   },
   {
-    id: 'cursor',
-    name: 'Cursor',
-    role: 'Code Editor AI',
-    avatar: 'CR',
-    status: 'Active',
+    id: 'ena',
+    name: 'Ena',
+    role: 'General Assistant',
+    avatar: 'EN',
     enabled: true,
-    model: 'Cursor Composer',
-    activeTask: 'Managing repository imports',
+    model: 'gpt-4o-mini',
+    activeTask: 'Ready to help',
     messages: [
-      { sender: 'agent', text: "Composer logs synced. Zero imports compilation warnings detected.", timestamp: '18:25' }
-    ]
-  },
-  {
-    id: 'codex',
-    name: 'Codex',
-    role: 'Code Generation',
-    avatar: 'CX',
-    status: 'Idle',
-    enabled: true,
-    model: 'GPT-3.5 Codex',
-    activeTask: 'Awaiting instruction',
-    messages: [
-      { sender: 'agent', text: "Legacy translation pipeline active. Ready to convert JS functions to TypeScript.", timestamp: '18:10' }
-    ]
-  },
-  {
-    id: 'stitch',
-    name: 'Stitch',
-    role: 'Design AI',
-    avatar: 'ST',
-    status: 'Active',
-    enabled: true,
-    model: 'Stitch Vision',
-    activeTask: 'Structuring design layout systems',
-    messages: [
-      { sender: 'agent', text: "Design assets exported. Color palette ratios matching Geist Mono specifications verified.", timestamp: '18:05' }
+      {
+        sender: 'agent',
+        text: 'Hey! I am Ena, your general assistant. Ask me anything about your product, business, or anything else. I am here to help.',
+        timestamp: new Date().toTimeString().slice(0, 5)
+      }
     ]
   }
-];
+]

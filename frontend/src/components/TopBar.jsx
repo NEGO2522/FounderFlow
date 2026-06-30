@@ -1,12 +1,25 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-export default function TopBar({ title }) {
+export default function TopBar({ title, onMenuClick }) {
   const navigate = useNavigate();
 
   return (
     <header className="top-bar">
-      <div style={{ display: 'flex', alignItems: 'center' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <button 
+          className="mobile-menu-btn"
+          onClick={onMenuClick}
+          style={{
+            display: 'none',
+            background: 'transparent',
+            border: 'none',
+            color: '#E8EDD4',
+            cursor: 'pointer'
+          }}
+        >
+          <span className="material-symbols-outlined">menu</span>
+        </button>
         <span 
           onClick={() => navigate('/dashboard')}
           style={{ fontSize: '13px', fontWeight: '800', letterSpacing: '0.12em', color: 'var(--text-warm)', cursor: 'pointer' }}
@@ -16,12 +29,12 @@ export default function TopBar({ title }) {
       </div>
       
       {/* Project Name Center */}
-      <div style={{ fontSize: '12px', fontWeight: '700', letterSpacing: '0.05em', color: 'var(--text-warm)' }}>
+      <div className="top-bar-title" style={{ fontSize: '12px', fontWeight: '700', letterSpacing: '0.05em', color: 'var(--text-warm)' }}>
         {title}
       </div>
 
       {/* Right Column: + New Project & Status Dot */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+      <div className="top-bar-right" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
         <button
           onClick={() => {
             if (window.confirm('Start a new project? Current project will be saved.')) {
